@@ -192,11 +192,11 @@ type Message = {
 };
 
 export default function ChatRoom() {
-  const { userId } = useParams(); // /1, /2
+  const { userId } = useParams();
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  // const [_audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [soundEnabled, setSoundEnabled] = useState(false);
 
   const apiHost = import.meta.env.VITE_API_URL.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
@@ -214,46 +214,32 @@ export default function ChatRoom() {
       const parts = data.message.split(": ");
       const sender = parts[0];
       const text = parts.slice(1).join(": ");
-
       if (data.message.startsWith("✅")) return;
       setMessages((prev) => [...prev, { sender, text }]);
 
-      if (sender !== `User_${userId}` && text) {
-        console.log(`💬 답장이 옴 → ${text}`);
-
-        // ✅ 음성 재생
+      if (soundEnabled && sender !== `User_${userId}`) {
         if (text.includes("수락")) {
-          const sound = new Audio(acceptSound);
-          sound.play();
-          // setAudio(sound);
+          new Audio(acceptSound).play();
         } else if (text.includes("거절")) {
-          const sound = new Audio(rejectSound);
-          sound.play();
-          // setAudio(sound);
+          new Audio(rejectSound).play();
         }
-      }
-
-      if (Notification.permission === "granted") {
-        const n = new Notification("새 메시지 도착!", {
-          body: text,
-          icon: "/icon.png",
-        });
-
-        n.onclick = function (event) {
-          event.preventDefault();
-          window.open("http://pushapp.kioedu.co.kr/1", "_blank");
-        };
       }
     };
 
     return () => socket.close();
-  }, [userId]);
+  }, [userId, soundEnabled]);
 
   const sendMessage = () => {
     if (ws && ws.readyState === WebSocket.OPEN && input.trim() !== "") {
       ws.send(JSON.stringify({ sender: `User_${userId}`, message: input }));
       setInput("");
     }
+  };
+
+  const handleEnableSound = () => {
+    setSoundEnabled(true);
+    // 짧은 확인음 한 번 재생 (사용자 상호작용 트리거)
+    new Audio(acceptSound).play();
   };
 
   return (
@@ -271,6 +257,24 @@ export default function ChatRoom() {
       }}
     >
       <h2 style={{ textAlign: "center" }}>💬 Chat Room - User {userId}</h2>
+
+      {/* 🔊 알림 허용 버튼 (최초 1회만) */}
+      {!soundEnabled && (
+        <button
+          onClick={handleEnableSound}
+          style={{
+            background: "#3B82F6",
+            color: "white",
+            border: "none",
+            borderRadius: 8,
+            padding: "10px 16px",
+            margin: "8px auto",
+            cursor: "pointer",
+          }}
+        >
+          🔊 알림(소리) 허용
+        </button>
+      )}
 
       {/* 채팅창 */}
       <div
