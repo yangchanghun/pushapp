@@ -196,7 +196,7 @@ export default function ChatRoom() {
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  // const [_audio, setAudio] = useState<HTMLAudioElement | null>(null);
 
   const apiHost = import.meta.env.VITE_API_URL.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
@@ -225,11 +225,11 @@ export default function ChatRoom() {
         if (text.includes("수락")) {
           const sound = new Audio(acceptSound);
           sound.play();
-          setAudio(sound);
+          // setAudio(sound);
         } else if (text.includes("거절")) {
           const sound = new Audio(rejectSound);
           sound.play();
-          setAudio(sound);
+          // setAudio(sound);
         }
       }
 
