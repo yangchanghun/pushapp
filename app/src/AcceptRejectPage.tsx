@@ -8,11 +8,17 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
+type VisitorInfo = {
+  name: string;
+  visit_purpose: string;
+  professor?: string | null;
+};
+
 export default function AcceptRejectPage() {
   const { token } = useParams();
   const [loading, setLoading] = useState(true);
   const [valid, setValid] = useState(false);
-  const [visitor, setVisitor] = useState(null);
+  const [visitor, setVisitor] = useState<VisitorInfo | null>(null);
   const [message, setMessage] = useState("");
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -29,15 +35,15 @@ export default function AcceptRejectPage() {
           setMessage(data.message || "잘못된 요청입니다.");
         }
       } catch (err) {
+        console.error(err);
         setMessage("❌ 서버 오류가 발생했습니다.");
       } finally {
         setLoading(false);
       }
     };
     checkToken();
-  }, [token]);
+  }, [token, API_URL]);
 
-  // ✅ 수락 / 거절 처리
   const handleAction = async (action: string) => {
     setLoading(true);
     try {
@@ -52,8 +58,9 @@ export default function AcceptRejectPage() {
     }
   };
 
-  if (loading)
+  if (loading) {
     return <p style={{ textAlign: "center", marginTop: "2rem" }}>로딩 중...</p>;
+  }
 
   return (
     <div
@@ -78,7 +85,7 @@ export default function AcceptRejectPage() {
           maxWidth: "400px",
         }}
       >
-        {valid ? (
+        {valid && visitor ? (
           <>
             <h2>📩 방문 요청 처리</h2>
             <p style={{ color: "#555" }}>
