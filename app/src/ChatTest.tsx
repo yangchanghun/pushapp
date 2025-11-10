@@ -17,6 +17,7 @@ export default function ChatRoom() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [voiceSrc, setVoiceSrc] = useState<string | null>(null);
+
   const apiHost = import.meta.env.VITE_API_URL.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
   const API_URL = import.meta.env.VITE_API_URL;
@@ -44,9 +45,14 @@ export default function ChatRoom() {
 
         // ✅ 수락 / 거절 / 일반 감지 후 음성파일 경로 지정
         if (text.includes("수락")) {
+          console.log("수락됨?");
           setVoiceSrc("/voice/accept.mp3");
           console.log(voiceSrc);
-        } else if (text.includes("거절")) setVoiceSrc("/voice/reject.mp3");
+        } else if (text.includes("거절")) {
+          console.log("거절됨?");
+
+          setVoiceSrc("/voice/reject.mp3");
+        }
       }
       if (Notification.permission === "granted") {
         const n = new Notification("새 메시지 도착!", {
@@ -56,7 +62,7 @@ export default function ChatRoom() {
 
         n.onclick = function (event) {
           event.preventDefault(); // 기본 동작(포커스 등) 방지
-          window.open("http://push.kioedu.co.kr/1", "_blank");
+          window.open("http://pushapp.kioedu.co.kr/1", "_blank");
         };
       }
     };
@@ -89,6 +95,7 @@ export default function ChatRoom() {
     >
       <h2 style={{ textAlign: "center" }}>💬 Chat Room - User {userId}</h2>
       {voiceSrc && <audio src={voiceSrc} autoPlay />}
+      <audio src="/voice/reject.mp3" autoPlay />
       {/* 채팅창 */}
       <div
         style={{
