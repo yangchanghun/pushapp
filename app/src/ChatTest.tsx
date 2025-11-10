@@ -181,7 +181,7 @@
 //     </div>
 //   );
 // }
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import acceptSound from "@/assets/voice/accept.mp3";
 import rejectSound from "@/assets/voice/reject.mp3";
@@ -198,8 +198,17 @@ export default function ChatRoom() {
   const [input, setInput] = useState("");
   const [soundEnabled, setSoundEnabled] = useState(false);
 
+  // 🎧 미리 로드한 오디오 객체를 useRef로 관리
+  const acceptAudio = useRef<HTMLAudioElement | null>(null);
+  const rejectAudio = useRef<HTMLAudioElement | null>(null);
+
   const apiHost = import.meta.env.VITE_API_URL.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+
+  useEffect(() => {
+    acceptAudio.current = new Audio(acceptSound);
+    rejectAudio.current = new Audio(rejectSound);
+  }, []);
 
   useEffect(() => {
     const socket = new WebSocket(`${wsProtocol}://${apiHost}/ws/chat/1/`);
@@ -214,14 +223,20 @@ export default function ChatRoom() {
       const parts = data.message.split(": ");
       const sender = parts[0];
       const text = parts.slice(1).join(": ");
+
       if (data.message.startsWith("✅")) return;
       setMessages((prev) => [...prev, { sender, text }]);
 
+      // 🎧 버튼으로 허용된 상태일 때만 재생
       if (soundEnabled && sender !== `User_${userId}`) {
         if (text.includes("수락")) {
-          new Audio(acceptSound).play();
+          acceptAudio.current
+            ?.play()
+            .catch((err) => console.warn("Play blocked:", err));
         } else if (text.includes("거절")) {
-          new Audio(rejectSound).play();
+          rejectAudio.current
+            ?.play()
+            .catch((err) => console.warn("Play blocked:", err));
         }
       }
     };
@@ -238,8 +253,18 @@ export default function ChatRoom() {
 
   const handleEnableSound = () => {
     setSoundEnabled(true);
-    // 짧은 확인음 한 번 재생 (사용자 상호작용 트리거)
-    new Audio(acceptSound).play();
+    // 🔊 사용자 제스처로 오디오 컨텍스트 활성화
+    if (acceptAudio.current && rejectAudio.current) {
+      acceptAudio.current.play().then(() => {
+        acceptAudio.current!.pause();
+        acceptAudio.current!.currentTime = 0;
+      });
+      rejectAudio.current.play().then(() => {
+        rejectAudio.current!.pause();
+        rejectAudio.current!.currentTime = 0;
+      });
+    }
+    console.log("🔔 소리 허용됨");
   };
 
   return (
@@ -258,7 +283,7 @@ export default function ChatRoom() {
     >
       <h2 style={{ textAlign: "center" }}>💬 Chat Room - User {userId}</h2>
 
-      {/* 🔊 알림 허용 버튼 (최초 1회만) */}
+      {/* 🔊 알림 허용 버튼 */}
       {!soundEnabled && (
         <button
           onClick={handleEnableSound}
