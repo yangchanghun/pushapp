@@ -23,11 +23,3 @@ if ("serviceWorker" in navigator) {
   console.log("Service workers are not supported.");
 }
 console.log(Notification.permission);
-// if (
-//   Notification.permission === "default" ||
-//   Notification.permission === "denied"
-// ) {
-//   Notification.requestPermission().then((permission) => {
-//     console.log("Notification permission:", permission);
-//   });
-// }

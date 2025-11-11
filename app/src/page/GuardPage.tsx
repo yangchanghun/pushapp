@@ -1,23 +1,20 @@
-// 경비원 1채팅방 접속 => 교수가 허락 혹은 거절을 보냄 => 백엔드 서버에서 웹소켓 1채널을 통해 데이터를 보냄 => 그럼 채팅추가 되겠찌? 그리고
-//       if (sender !== `User_${userId}` && data) {
-//            console.log(`💬 답장이 옴 → ${text}`);
-//        } 을 음성메시지로 바꾼다 문자왔습니다음성으로 ㄱ
-
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import acceptSound from "@/assets/voice/accept.mp3";
 import rejectSound from "@/assets/voice/reject.mp3";
-
+import ChatComponent from "../components/ChatComponent";
 type Message = {
   sender: string;
   text: string;
+  token: string;
+  visitor: string;
 };
 
-export default function ChatRoom() {
+export default function GaurdPage() {
   const { userId } = useParams();
-  const [ws, setWs] = useState<WebSocket | null>(null);
+  const [, setWs] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
+  // const [input, setInput] = useState("");
   const [soundEnabled, setSoundEnabled] = useState(false);
 
   // 🎧 미리 로드한 오디오 객체를 useRef로 관리
@@ -42,12 +39,15 @@ export default function ChatRoom() {
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      const parts = data.message.split(": ");
-      const sender = parts[0];
-      const text = parts.slice(1).join(": ");
+      const token = JSON.parse(data.token);
+      // const parts = data.message.split(": ");
+      // const sender = parts[0];
+      // const text = parts.slice(1).join(": ");
+      const [sender, rest] = data.split(": ");
+      const [visitor, text] = rest.split(" 방문");
 
       if (data.message.startsWith("✅")) return;
-      setMessages((prev) => [...prev, { sender, text }]);
+      setMessages((prev) => [...prev, { sender, text, token, visitor }]);
 
       // 🎧 버튼으로 허용된 상태일 때만 재생
       if (soundEnabled && sender !== `User_${userId}`) {
@@ -66,12 +66,12 @@ export default function ChatRoom() {
     return () => socket.close();
   }, [userId, soundEnabled]);
 
-  const sendMessage = () => {
-    if (ws && ws.readyState === WebSocket.OPEN && input.trim() !== "") {
-      ws.send(JSON.stringify({ sender: `User_${userId}`, message: input }));
-      setInput("");
-    }
-  };
+  // const sendMessage = () => {
+  //   if (ws && ws.readyState === WebSocket.OPEN && input.trim() !== "") {
+  //     ws.send(JSON.stringify({ sender: `User_${userId}`, message: input }));
+  //     setInput("");
+  //   }
+  // };
 
   const handleEnableSound = () => {
     setSoundEnabled(true);
@@ -103,8 +103,8 @@ export default function ChatRoom() {
         flexDirection: "column",
       }}
     >
-      <h2 style={{ textAlign: "center" }}>💬 Chat Room - User {userId}</h2>
-
+      {/* <h2 style={{ textAlign: "center" }}>💬 Chat Room - User {userId}</h2> */}
+      <h2 style={{ textAlign: "center" }}>경비원</h2>
       {/* 🔊 알림 허용 버튼 */}
       {!soundEnabled && (
         <button
@@ -122,87 +122,8 @@ export default function ChatRoom() {
           🔊 알림(소리) 허용
         </button>
       )}
-
       {/* 채팅창 */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          display: "flex",
-          flexDirection: "column",
-          gap: 6,
-          padding: 10,
-        }}
-      >
-        {messages.map((msg, i) => {
-          const isMine = msg.sender === `User_${userId}`;
-          return (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: isMine ? "flex-end" : "flex-start",
-              }}
-            >
-              {!isMine && (
-                <div style={{ textAlign: "left", fontSize: 11, color: "#666" }}>
-                  {msg.sender}
-                </div>
-              )}
-              <div
-                style={{
-                  backgroundColor: isMine ? "#DCF8C6" : "#fff",
-                  color: "#111",
-                  padding: "8px 12px",
-                  borderRadius: 12,
-                  maxWidth: "70%",
-                  wordBreak: "break-word",
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.15)",
-                }}
-              >
-                <div style={{ textAlign: "left" }}>{msg.text}</div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* 입력창 */}
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          padding: 10,
-          borderTop: "1px solid #ccc",
-          background: "#fff",
-        }}
-      >
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="메시지 입력..."
-          style={{
-            flex: 1,
-            padding: 10,
-            borderRadius: 8,
-            border: "1px solid #ddd",
-          }}
-        />
-        <button
-          onClick={sendMessage}
-          style={{
-            background: "#4CAF50",
-            color: "white",
-            border: "none",
-            borderRadius: 8,
-            padding: "10px 16px",
-            cursor: "pointer",
-          }}
-        >
-          전송
-        </button>
-      </div>
+      <ChatComponent messages={messages} userId={userId} />
     </div>
   );
 }

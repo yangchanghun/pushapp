@@ -1,0 +1,79 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+const API_URL = "https://pushapp.kioedu.co.kr";
+
+interface Visitor {
+  name: string;
+  phonenumber: string;
+  visit_purpose: string;
+  status: string;
+  created_at: string;
+  professor_name?: string;
+}
+
+interface VisitorDetailModalProps {
+  token: string;
+  onClose: () => void;
+}
+
+export default function VisitorDetailModal({
+  token,
+  onClose,
+}: VisitorDetailModalProps) {
+  const [visitor, setVisitor] = useState<Visitor | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios
+      .get(`${API_URL}/api/visit/detail/${token}/`)
+      .then((res) => setVisitor(res.data))
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, [token]);
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-xl shadow-lg">불러오는 중...</div>
+      </div>
+    );
+  }
+
+  if (!visitor) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-6 relative">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800">
+          방문자 상세정보
+        </h2>
+        <div className="space-y-3 text-gray-700">
+          <p>
+            <strong>이름:</strong> {visitor.name}
+          </p>
+          <p>
+            <strong>전화번호:</strong> {visitor.phonenumber}
+          </p>
+          <p>
+            <strong>방문 목적:</strong> {visitor.visit_purpose}
+          </p>
+          <p>
+            <strong>상태:</strong> {visitor.status}
+          </p>
+          <p>
+            <strong>등록일:</strong>{" "}
+            {new Date(visitor.created_at).toLocaleString()}
+          </p>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+  );
+}

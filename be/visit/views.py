@@ -29,6 +29,38 @@ class VisitorCreateView(APIView):
 
 
 
+from rest_framework import generics
+from .models import Visitors
+from .serializers import VisitorSerializer
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+
+class VisitorDetailView(generics.RetrieveAPIView):
+    queryset = Visitors.objects.all()
+    serializer_class = VisitorSerializer
+    lookup_field = "token"  # URL에서 token으로 조회 가능
+
+    # 선택적으로 name으로도 조회 원할 때
+    def get(self, request, *args, **kwargs):
+        token = kwargs.get("token", None)
+        name = kwargs.get("name", None)
+
+        if token:
+            visitor = get_object_or_404(Visitors, token=token)
+        elif name:
+            visitor = get_object_or_404(Visitors, name=name)
+        else:
+            return Response(
+                {"error": "조회할 방문자 식별자가 없습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = self.get_serializer(visitor)
+        return Response(serializer.data)
+
+
+
 from rest_framework.decorators import api_view
 from uuid import UUID
 from rest_framework.decorators import api_view
@@ -88,7 +120,8 @@ def accept_visit(request, token):
         "room_1",
         {
             "type": "chat_message",
-            "message": f"{sender}: {message}"
+            "message": f"{sender}: {message}",
+            "token": token
         }
     )
 
@@ -114,7 +147,8 @@ def reject_visit(request, token):
         "room_1",
         {
             "type": "chat_message",
-            "message": f"{sender}: {message}"
+            "message": f"{sender}: {message}",
+            "token": token
         }
     )
 
