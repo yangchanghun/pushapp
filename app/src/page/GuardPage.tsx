@@ -51,7 +51,7 @@ export default function GaurdPage() {
 
         setMessages((prev) => [
           ...prev,
-          { sender, visitor, text: `방문${text}`, token },
+          { sender, visitor, text: `${text}`, token },
         ]);
 
         // 🔊 소리 알림
