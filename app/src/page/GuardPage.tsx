@@ -38,28 +38,36 @@ export default function GaurdPage() {
     socket.onerror = (err) => console.error(`⚠️ [User ${userId}] 에러:`, err);
 
     socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      const token = JSON.parse(data.token);
-      // const parts = data.message.split(": ");
-      // const sender = parts[0];
-      // const text = parts.slice(1).join(": ");
-      const [sender, rest] = data.split(": ");
-      const [visitor, text] = rest.split(" 방문");
+      try {
+        const data = JSON.parse(event.data); // ✅ { message, token }
 
-      if (data.message.startsWith("✅")) return;
-      setMessages((prev) => [...prev, { sender, text, token, visitor }]);
+        if (!data.message) return; // 연결확인용 메시지 무시
 
-      // 🎧 버튼으로 허용된 상태일 때만 재생
-      if (soundEnabled && sender !== `User_${userId}`) {
-        if (text.includes("수락")) {
-          acceptAudio.current
-            ?.play()
-            .catch((err) => console.warn("Play blocked:", err));
-        } else if (text.includes("거절")) {
-          rejectAudio.current
-            ?.play()
-            .catch((err) => console.warn("Play blocked:", err));
+        const { message, token } = data;
+
+        // 💬 "홍길동 방문을 수락했습니다" 파싱
+        const [sender, rest] = message.split(": ");
+        const [visitor, text] = rest.split(" 방문");
+
+        setMessages((prev) => [
+          ...prev,
+          { sender, visitor, text: `방문${text}`, token },
+        ]);
+
+        // 🔊 소리 알림
+        if (soundEnabled && sender !== `User_${userId}`) {
+          if (text.includes("수락")) {
+            acceptAudio.current
+              ?.play()
+              .catch((err) => console.warn("Play blocked:", err));
+          } else if (text.includes("거절")) {
+            rejectAudio.current
+              ?.play()
+              .catch((err) => console.warn("Play blocked:", err));
+          }
         }
+      } catch (err) {
+        console.warn("⚠️ JSON 파싱 실패:", event.data, err);
       }
     };
 
