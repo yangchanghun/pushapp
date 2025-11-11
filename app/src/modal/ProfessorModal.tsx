@@ -33,7 +33,7 @@ export default function ProfessorModal({
   useEffect(() => {
     axios
       .get(`${API_URL}/api/professors/list/`)
-      .then((res) => {
+      .then((res: { data: Professor[] }) => {
         setProfessors(res.data);
         setFiltered(res.data);
       })

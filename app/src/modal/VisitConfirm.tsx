@@ -27,8 +27,8 @@ export default function VisitorDetailModal({
   useEffect(() => {
     axios
       .get(`${API_URL}/api/visit/detail/${token}/`)
-      .then((res) => setVisitor(res.data))
-      .catch((err) => console.error(err))
+      .then((res: { data: Visitor }) => setVisitor(res.data))
+      .catch((err: unknown) => console.error(err))
       .finally(() => setLoading(false));
   }, [token]);
 
