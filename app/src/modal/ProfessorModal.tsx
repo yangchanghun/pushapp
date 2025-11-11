@@ -15,9 +15,11 @@ interface Professor {
 interface ProfessorModalProps {
   onClose: () => void;
   onSelect: (professor: Professor) => void;
+  setImg: (url: string | undefined) => void;
 }
 
 export default function ProfessorModal({
+  setImg,
   onClose,
   onSelect,
 }: ProfessorModalProps) {
@@ -25,7 +27,6 @@ export default function ProfessorModal({
   const [search, setSearch] = useState("");
   const [filtered, setFiltered] = useState<Professor[]>([]);
   const [loading, setLoading] = useState(true);
-
   // ✅ 페이지네이션 관련 상태
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10; // 한 페이지당 10명
@@ -86,6 +87,7 @@ export default function ProfessorModal({
                 <button
                   key={prof.id}
                   onClick={() => {
+                    setImg(prof.location_gif);
                     onSelect(prof);
                     onClose();
                   }}
