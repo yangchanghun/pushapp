@@ -73,7 +73,10 @@ export default function ChatComponent({
                 </span>
                 방문{msg.text}
                 <button
-                  onClick={() => setSelectedToken(msg.token)}
+                  onClick={() => {
+                    console.log(msg.token);
+                    setSelectedToken(msg.token);
+                  }}
                   style={{
                     marginLeft: "10px",
                     background: "#007bff",
@@ -96,7 +99,9 @@ export default function ChatComponent({
       {selectedToken && (
         <VisitorDetailModal
           token={selectedToken}
-          onClose={() => setSelectedToken(null)}
+          onClose={() => {
+            setSelectedToken(null);
+          }}
         />
       )}
     </div>
