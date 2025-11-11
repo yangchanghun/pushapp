@@ -121,7 +121,7 @@ def accept_visit(request, token):
         {
             "type": "chat_message",
             "message": f"{sender}: {message}",
-            "token": token
+            "token": str(token)  # ✅ UUID → 문자열 변환
         }
     )
 
