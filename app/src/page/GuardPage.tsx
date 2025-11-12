@@ -155,7 +155,7 @@ export default function GaurdPage() {
       {checkedVisitors.length === 0 ? (
         <div>현재확인된 방문자없음</div>
       ) : (
-        checkedVisitors.map((v) => <div>{v.name}</div>)
+        checkedVisitors.map((v: any) => <div>{v.name}</div>)
       )}
     </div>
   );
