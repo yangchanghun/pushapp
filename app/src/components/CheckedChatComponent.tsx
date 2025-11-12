@@ -1,5 +1,5 @@
-import { useState, useRef, useLayoutEffect } from "react";
-import VisitorDetailModal from "../modal/VisitConfirm";
+import { useRef, useLayoutEffect } from "react";
+// import VisitorDetailModal from "../modal/VisitConfirm";
 
 type Message = {
   sender: string;
@@ -11,17 +11,13 @@ type Message = {
 interface ChatComponentProps {
   messages: Message[];
   userId: string | undefined;
-  setMessages: React.Dispatch<React.SetStateAction<any[]>>;
-  setCheckedMessages: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-export default function ChatComponent({
+export default function CheckedChatComponent({
   messages,
   userId,
-  setMessages,
-  setCheckedMessages,
 }: ChatComponentProps) {
-  const [selectedToken, setSelectedToken] = useState<string | null>(null);
+  // const [selectedToken, setSelectedToken] = useState<string | null>(null);
 
   // ✅ 스크롤 가능한 컨테이너 ref
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
@@ -89,7 +85,7 @@ export default function ChatComponent({
                   {msg.visitor}님
                 </span>
                 방문{msg.text}
-                <button
+                {/* <button
                   onClick={() => setSelectedToken(msg.token)}
                   style={{
                     marginLeft: "10px",
@@ -102,21 +98,12 @@ export default function ChatComponent({
                   }}
                 >
                   확인
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
         );
       })}
-
-      {selectedToken && (
-        <VisitorDetailModal
-          token={selectedToken}
-          onClose={() => setSelectedToken(null)}
-          setMessages={setMessages}
-          setCheckedMessages={setCheckedMessages}
-        />
-      )}
     </div>
   );
 }

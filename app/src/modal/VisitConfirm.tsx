@@ -10,40 +10,56 @@ interface Visitor {
   status: string;
   created_at: string;
   professor_name?: string;
+  token: string;
 }
 
 interface VisitorDetailModalProps {
   token: string;
   onClose: () => void;
+  setMessages: React.Dispatch<React.SetStateAction<any[]>>;
+  setCheckedMessages: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
 export default function VisitorDetailModal({
   token,
   onClose,
+  setMessages,
+  setCheckedMessages,
 }: VisitorDetailModalProps) {
   const [visitor, setVisitor] = useState<Visitor | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  // ✅ 방문자 상세조회
   useEffect(() => {
     axios
       .get(`${API_URL}/api/visit/detail/${token}/`)
-      .then((res: { data: Visitor }) => setVisitor(res.data))
-      .catch((err: unknown) => console.error(err))
+      .then((res) => setVisitor(res.data))
+      .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, [token]);
 
-  if (loading) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-        <div className="bg-white p-6 rounded-xl shadow-lg">불러오는 중...</div>
-      </div>
-    );
-  }
+  // ✅ 확인 버튼
   const handleConfirm = async () => {
     try {
       setSubmitting(true);
       const res = await axios.post(`${API_URL}/api/visit/check/`, { token });
       alert(res.data.message || "확인 완료!");
+
+      // ✅ 왼쪽(no_checked)에서 제거
+      setMessages((prev) => prev.filter((msg) => msg.token !== token));
+
+      // ✅ 오른쪽(checked)에 추가
+      if (visitor) {
+        const newChecked = {
+          sender: visitor.professor_name || "교수",
+          visitor: visitor.name,
+          text: `을 ${visitor.status}했습니다.`,
+          token: visitor.token,
+        };
+        setCheckedMessages((prev) => [newChecked, ...prev]); // 위쪽에 추가
+      }
+
       onClose();
     } catch (err) {
       console.error(err);
@@ -53,6 +69,13 @@ export default function VisitorDetailModal({
     }
   };
 
+  if (loading)
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-xl shadow-lg">불러오는 중...</div>
+      </div>
+    );
+
   if (!visitor) return null;
 
   return (
@@ -61,6 +84,7 @@ export default function VisitorDetailModal({
         <h2 className="text-xl font-semibold mb-4 text-gray-800">
           방문자 상세정보
         </h2>
+
         <div className="space-y-3 text-gray-700">
           <p>
             <strong>이름:</strong> {visitor.name}
@@ -86,6 +110,7 @@ export default function VisitorDetailModal({
         >
           ✕
         </button>
+
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}

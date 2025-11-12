@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import acceptSound from "@/assets/voice/accept.mp3";
 import rejectSound from "@/assets/voice/reject.mp3";
 import ChatComponent from "../components/ChatComponent";
+import CheckedChatComponent from "../components/CheckedChatComponent";
 
 type Message = {
   sender: string;
@@ -15,6 +16,9 @@ export default function GaurdPage() {
   const { userId } = useParams();
   const [, setWs] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+
+  const [checkedMessages, setCheckedMessages] = useState<Message[]>([]);
+
   const [soundEnabled, setSoundEnabled] = useState(false);
 
   const acceptAudio = useRef<HTMLAudioElement | null>(null);
@@ -23,7 +27,7 @@ export default function GaurdPage() {
   const apiBase = import.meta.env.VITE_API_URL;
   const apiHost = apiBase.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-  // ✅ 1. 기존 방문기록 불러오기
+
   useEffect(() => {
     const fetchOldMessages = async () => {
       try {
@@ -38,6 +42,28 @@ export default function GaurdPage() {
         }));
 
         setMessages(formatted);
+        console.log("✅ 기존 방문기록 불러옴:", formatted);
+      } catch (err) {
+        console.error("❌ 기존 메시지 불러오기 실패:", err);
+      }
+    };
+    fetchOldMessages();
+  }, [apiBase]);
+
+  useEffect(() => {
+    const fetchOldMessages = async () => {
+      try {
+        const res = await fetch(`${apiBase}/api/visit/checked/`);
+        const data = await res.json();
+
+        const formatted = data.map((item: any) => ({
+          sender: item.professor_name || "교수",
+          visitor: item.name,
+          text: `을 ${item.status}했습니다.`,
+          token: item.token,
+        }));
+
+        setCheckedMessages(formatted);
         console.log("✅ 기존 방문기록 불러옴:", formatted);
       } catch (err) {
         console.error("❌ 기존 메시지 불러오기 실패:", err);
@@ -137,6 +163,7 @@ export default function GaurdPage() {
       )}
 
       <ChatComponent messages={messages} userId={userId} />
+      <CheckedChatComponent messages={checkedMessages} userId={userId} />
     </div>
   );
 }
