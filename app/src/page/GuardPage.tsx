@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import acceptSound from "@/assets/voice/accept.mp3";
 import rejectSound from "@/assets/voice/reject.mp3";
 import ChatComponent from "../components/ChatComponent";
+
 type Message = {
   sender: string;
   text: string;
@@ -14,22 +15,43 @@ export default function GaurdPage() {
   const { userId } = useParams();
   const [, setWs] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  // const [input, setInput] = useState("");
   const [soundEnabled, setSoundEnabled] = useState(false);
 
-  // 🎧 미리 로드한 오디오 객체를 useRef로 관리
   const acceptAudio = useRef<HTMLAudioElement | null>(null);
   const rejectAudio = useRef<HTMLAudioElement | null>(null);
 
-  const apiHost = import.meta.env.VITE_API_URL.replace(/^https?:\/\//, "");
+  const apiBase = import.meta.env.VITE_API_URL;
+  const apiHost = apiBase.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
 
+  // ✅ 1. 기존 방문기록 불러오기
+  useEffect(() => {
+    const fetchOldMessages = async () => {
+      try {
+        const res = await fetch(`${apiBase}/api/visitors/checked/`);
+        const data = await res.json();
+
+        const formatted = data.map((item: any) => ({
+          sender: item.professor_name || "교수",
+          visitor: item.name,
+          text: `을 ${item.status}했습니다.`,
+          token: item.token,
+        }));
+
+        setMessages(formatted);
+        console.log("✅ 기존 방문기록 불러옴:", formatted);
+      } catch (err) {
+        console.error("❌ 기존 메시지 불러오기 실패:", err);
+      }
+    };
+    fetchOldMessages();
+  }, [apiBase]);
+
+  // ✅ 2. WebSocket 연결
   useEffect(() => {
     acceptAudio.current = new Audio(acceptSound);
     rejectAudio.current = new Audio(rejectSound);
-  }, []);
 
-  useEffect(() => {
     const socket = new WebSocket(`${wsProtocol}://${apiHost}/ws/chat/1/`);
     setWs(socket);
 
@@ -39,32 +61,27 @@ export default function GaurdPage() {
 
     socket.onmessage = (event) => {
       try {
-        const data = JSON.parse(event.data); // ✅ { message, token }
-
-        if (!data.message) return; // 연결확인용 메시지 무시
+        const data = JSON.parse(event.data);
+        if (!data.message) return;
 
         const { message, token } = data;
-
-        // 💬 "홍길동 방문을 수락했습니다" 파싱
         const [sender, rest] = message.split(": ");
         const [visitor, text] = rest.split(" 방문");
 
-        setMessages((prev) => [
-          ...prev,
-          { sender, visitor, text: `${text}`, token },
-        ]);
+        const newMsg = {
+          sender,
+          visitor,
+          text: `${text}`,
+          token,
+        };
 
-        // 🔊 소리 알림
+        // ✅ 실시간 추가
+        setMessages((prev) => [...prev, newMsg]);
+
+        // 🔊 알림
         if (soundEnabled && sender !== `User_${userId}`) {
-          if (text.includes("수락")) {
-            acceptAudio.current
-              ?.play()
-              .catch((err) => console.warn("Play blocked:", err));
-          } else if (text.includes("거절")) {
-            rejectAudio.current
-              ?.play()
-              .catch((err) => console.warn("Play blocked:", err));
-          }
+          if (text.includes("수락")) acceptAudio.current?.play();
+          else if (text.includes("거절")) rejectAudio.current?.play();
         }
       } catch (err) {
         console.warn("⚠️ JSON 파싱 실패:", event.data, err);
@@ -72,26 +89,16 @@ export default function GaurdPage() {
     };
 
     return () => socket.close();
-  }, [userId, soundEnabled]);
-
-  // const sendMessage = () => {
-  //   if (ws && ws.readyState === WebSocket.OPEN && input.trim() !== "") {
-  //     ws.send(JSON.stringify({ sender: `User_${userId}`, message: input }));
-  //     setInput("");
-  //   }
-  // };
+  }, [userId, soundEnabled, apiHost, wsProtocol]);
 
   const handleEnableSound = () => {
     setSoundEnabled(true);
-    // 🔊 사용자 제스처로 오디오 컨텍스트 활성화
     if (acceptAudio.current && rejectAudio.current) {
-      acceptAudio.current.play().then(() => {
-        acceptAudio.current!.pause();
-        acceptAudio.current!.currentTime = 0;
-      });
-      rejectAudio.current.play().then(() => {
-        rejectAudio.current!.pause();
-        rejectAudio.current!.currentTime = 0;
+      [acceptAudio.current, rejectAudio.current].forEach((audio) => {
+        audio.play().then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+        });
       });
     }
     console.log("🔔 소리 허용됨");
@@ -111,9 +118,8 @@ export default function GaurdPage() {
         flexDirection: "column",
       }}
     >
-      {/* <h2 style={{ textAlign: "center" }}>💬 Chat Room - User {userId}</h2> */}
       <h2 style={{ textAlign: "center" }}>경비원</h2>
-      {/* 🔊 알림 허용 버튼 */}
+
       {!soundEnabled && (
         <button
           onClick={handleEnableSound}
@@ -130,7 +136,7 @@ export default function GaurdPage() {
           🔊 알림(소리) 허용
         </button>
       )}
-      {/* 채팅창 */}
+
       <ChatComponent messages={messages} userId={userId} />
     </div>
   );
