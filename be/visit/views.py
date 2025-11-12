@@ -153,3 +153,63 @@ def reject_visit(request, token):
     )
 
     return HttpResponse("❌ 방문이 거절되었습니다.")
+
+
+
+
+
+@api_view(["POST"])
+def check_visit(request):
+    token = request.data.get("token")
+    try:
+        visit = Visitors.objects.get(token=token)
+        visit.is_checked = True
+        visit.save()  # ✅ 반드시 저장
+        return Response({"message": "경비원이 방문을 확인했습니다."})
+    except Visitors.DoesNotExist:
+        return Response({"error": "해당 방문자가 존재하지 않습니다."}, status=404)
+    
+from .serializers import VisitorsSerializers
+from django.db.models import Q
+@api_view(["GET"])
+def checked_visit_list(request):
+    """
+    ✅ 교수가 수락 or 거절버튼을 누르고, 경비원이 확인한 방문자 목록
+    """
+    visits = Visitors.objects.filter(
+        Q(is_checked=True),
+        Q(status="수락") | Q(status="거절")
+    ).order_by("-created_at")
+
+    serializer = VisitorsSerializers(visits, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def no_checked_visit_list(request):
+    """
+    🚫 교수가 수락 or 거절버튼을 누르고 , 경비원이 확인 하지 않은 방문자 목록
+    """
+    visits = Visitors.objects.filter(
+        Q(is_checked=False),
+        Q(status="수락") | Q(status = "거절")   # ✅ 교수가 응답함
+    ).order_by("-created_at")
+
+    serializer = VisitorsSerializers(visits, many=True)
+    return Response(serializer.data)
+
+"""
+[
+  {
+    "id": 12,
+    "name": "홍길동",
+    "phonenumber": "010-1234-5678",
+    "visit_purpose": "면담 요청",
+    "status": "수락",
+    "is_checked": false,
+    "token": "a1b2c3d4-...",
+    "professor_name": "이승기",
+    "created_at": "2025-11-12T01:20:00Z"
+  }
+]
+"""

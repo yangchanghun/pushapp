@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import acceptSound from "@/assets/voice/accept.mp3";
 import rejectSound from "@/assets/voice/reject.mp3";
 import ChatComponent from "../components/ChatComponent";
+import axios from "axios";
 type Message = {
   sender: string;
   text: string;
@@ -16,7 +17,7 @@ export default function GaurdPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   // const [input, setInput] = useState("");
   const [soundEnabled, setSoundEnabled] = useState(false);
-
+  const API_URL = import.meta.env.VITE_API_URL;
   // 🎧 미리 로드한 오디오 객체를 useRef로 관리
   const acceptAudio = useRef<HTMLAudioElement | null>(null);
   const rejectAudio = useRef<HTMLAudioElement | null>(null);
@@ -74,13 +75,6 @@ export default function GaurdPage() {
     return () => socket.close();
   }, [userId, soundEnabled]);
 
-  // const sendMessage = () => {
-  //   if (ws && ws.readyState === WebSocket.OPEN && input.trim() !== "") {
-  //     ws.send(JSON.stringify({ sender: `User_${userId}`, message: input }));
-  //     setInput("");
-  //   }
-  // };
-
   const handleEnableSound = () => {
     setSoundEnabled(true);
     // 🔊 사용자 제스처로 오디오 컨텍스트 활성화
@@ -96,6 +90,32 @@ export default function GaurdPage() {
     }
     console.log("🔔 소리 허용됨");
   };
+
+  const [checkedVisitors, setCheckedVisitors] = useState<any[]>([]);
+  const fetchInitial = async () => {
+    try {
+      const [noChecked, checked] = await Promise.all([
+        axios.get(`${API_URL}/api/visit/no_chekd/`),
+        axios.get(`${API_URL}/api/visit/checked/`),
+      ]);
+      console.log(noChecked);
+      console.log(checked);
+      const pendingMessages: Message[] = noChecked.data.map((v) => ({
+        sender: v.professor_name || "없음",
+        visitor: v.name,
+        text: "방문을 수락했습니다",
+        token: v.token,
+      }));
+      setMessages(pendingMessages);
+      setCheckedVisitors(checked.data);
+    } catch (err) {
+      console.log("에러", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchInitial();
+  }, []);
 
   return (
     <div
@@ -132,6 +152,11 @@ export default function GaurdPage() {
       )}
       {/* 채팅창 */}
       <ChatComponent messages={messages} userId={userId} />
+      {checkedVisitors.length === 0 ? (
+        <div>현재확인된 방문자없음</div>
+      ) : (
+        checkedVisitors.map((v) => <div>{v.name}</div>)
+      )}
     </div>
   );
 }
