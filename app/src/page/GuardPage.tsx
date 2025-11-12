@@ -130,45 +130,47 @@ export default function GaurdPage() {
   };
 
   return (
-    <div
-      style={{
-        padding: 20,
-        maxWidth: 400,
-        margin: "0 auto",
-        border: "1px solid #ccc",
-        borderRadius: 10,
-        background: "#f5f5f5",
-        height: "90vh",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <h2 style={{ textAlign: "center" }}>경비원</h2>
+    <div className="flex h-screen w-screen">
+      {/* 왼쪽 절반 */}
+      <div className="flex w-1/2 items-center justify-center">
+        {/* 왼쪽 절반 안에서 중앙 정렬 */}
+        <div className="flex flex-col items-center justify-center w-[50%]">
+          <div className="flex flex-col border border-gray-300 rounded-xl p-5 w-[400px] h-[90vh] bg-white shadow-lg">
+            <h2 className="text-center text-xl font-semibold mb-3 text-gray-800">
+              경비원
+            </h2>
 
-      {!soundEnabled && (
-        <button
-          onClick={handleEnableSound}
-          style={{
-            background: "#3B82F6",
-            color: "white",
-            border: "none",
-            borderRadius: 8,
-            padding: "10px 16px",
-            margin: "8px auto",
-            cursor: "pointer",
-          }}
-        >
-          🔊 알림(소리) 허용
-        </button>
-      )}
+            {!soundEnabled && (
+              <button
+                onClick={handleEnableSound}
+                className="bg-blue-500 text-white rounded-lg py-2 px-4 mb-3 mx-auto hover:bg-blue-600 transition"
+              >
+                🔊 알림(소리) 허용
+              </button>
+            )}
 
-      <ChatComponent
-        messages={messages}
-        userId={userId}
-        setMessages={setMessages}
-        setCheckedMessages={setCheckedMessages}
-      />
-      <CheckedChatComponent messages={checkedMessages} userId={userId} />
+            <ChatComponent
+              messages={messages}
+              userId={userId}
+              setMessages={setMessages}
+              setCheckedMessages={setCheckedMessages}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 오른쪽 절반 */}
+      <div className="flex w-1/2 items-center justify-center border-l border-gray-300">
+        {/* 오른쪽 절반 안에서 중앙 정렬 */}
+        <div className="flex flex-col items-center justify-center w-[50%]">
+          <div className="flex flex-col border border-gray-300 rounded-xl p-5 w-[400px] h-[90vh] bg-white shadow-lg">
+            <h2 className="text-center text-xl font-semibold mb-3 text-gray-800">
+              ✅ 확인 완료
+            </h2>
+            <CheckedChatComponent messages={checkedMessages} userId={userId} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
