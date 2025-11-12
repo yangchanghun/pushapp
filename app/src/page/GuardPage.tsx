@@ -3,8 +3,7 @@ import { useParams } from "react-router-dom";
 import acceptSound from "@/assets/voice/accept.mp3";
 import rejectSound from "@/assets/voice/reject.mp3";
 import ChatComponent from "../components/ChatComponent";
-import axios from "axios";
-
+// import axios from "axios";
 type Message = {
   sender: string;
   text: string;
@@ -12,61 +11,25 @@ type Message = {
   visitor: string;
 };
 
-export default function GuardPage() {
+export default function GaurdPage() {
   const { userId } = useParams();
   const [, setWs] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  // const [input, setInput] = useState("");
   const [soundEnabled, setSoundEnabled] = useState(false);
-
-  const API_URL = import.meta.env.VITE_API_URL;
-  const apiHost = API_URL.replace(/^https?:\/\//, "");
-  const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-
-  // 🎧 사운드 준비
+  // const API_URL = import.meta.env.VITE_API_URL;
+  // 🎧 미리 로드한 오디오 객체를 useRef로 관리
   const acceptAudio = useRef<HTMLAudioElement | null>(null);
   const rejectAudio = useRef<HTMLAudioElement | null>(null);
+
+  const apiHost = import.meta.env.VITE_API_URL.replace(/^https?:\/\//, "");
+  const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
 
   useEffect(() => {
     acceptAudio.current = new Audio(acceptSound);
     rejectAudio.current = new Audio(rejectSound);
   }, []);
 
-  // ✅ 초기 방문자 데이터 가져오기 (덮어쓰기 ❌ 병합 ✅)
-  const fetchInitial = async () => {
-    try {
-      const [noChecked] = await Promise.all([
-        axios.get(`${API_URL}/api/visit/no_checked/`),
-        axios.get(`${API_URL}/api/visit/checked/`),
-      ]);
-
-      const pendingMessages: Message[] = noChecked.data.map((v: any) => ({
-        sender: v.professor_name || "시스템",
-        visitor: v.name,
-        text: "방문 요청이 도착했습니다.",
-        token: v.token,
-      }));
-
-      // 🔥 기존 메시지와 병합 (덮어쓰기 금지)
-      setMessages((prev) => {
-        const existingTokens = new Set(prev.map((m) => m.token));
-        const newOnes = pendingMessages.filter(
-          (m) => !existingTokens.has(m.token)
-        );
-        return [...prev, ...newOnes];
-      });
-
-      console.log("✅ 초기 방문자 로드 완료");
-    } catch (err) {
-      console.error("❌ 초기 방문자 불러오기 실패:", err);
-    }
-  };
-
-  // ✅ 페이지 최초 진입 시 한 번 실행
-  useEffect(() => {
-    fetchInitial();
-  }, []);
-
-  // ✅ WebSocket 연결
   useEffect(() => {
     const socket = new WebSocket(`${wsProtocol}://${apiHost}/ws/chat/1/`);
     setWs(socket);
@@ -77,26 +40,31 @@ export default function GuardPage() {
 
     socket.onmessage = (event) => {
       try {
-        const data = JSON.parse(event.data);
-        if (!data.message) return;
+        const data = JSON.parse(event.data); // ✅ { message, token }
+
+        if (!data.message) return; // 연결확인용 메시지 무시
 
         const { message, token } = data;
+
+        // 💬 "홍길동 방문을 수락했습니다" 파싱
         const [sender, rest] = message.split(": ");
         const [visitor, text] = rest.split(" 방문");
 
-        // ✅ 새 메시지 추가 (중복 방지)
-        setMessages((prev) => {
-          const exists = prev.some((m) => m.token === token && m.text === text);
-          if (exists) return prev;
-          return [...prev, { sender, visitor, text: text || "", token }];
-        });
+        setMessages((prev) => [
+          ...prev,
+          { sender, visitor, text: `${text}`, token },
+        ]);
 
-        // 🔊 사운드 알림
+        // 🔊 소리 알림
         if (soundEnabled && sender !== `User_${userId}`) {
-          if (text?.includes("수락")) {
-            acceptAudio.current?.play().catch(() => {});
-          } else if (text?.includes("거절")) {
-            rejectAudio.current?.play().catch(() => {});
+          if (text.includes("수락")) {
+            acceptAudio.current
+              ?.play()
+              .catch((err) => console.warn("Play blocked:", err));
+          } else if (text.includes("거절")) {
+            rejectAudio.current
+              ?.play()
+              .catch((err) => console.warn("Play blocked:", err));
           }
         }
       } catch (err) {
@@ -107,9 +75,9 @@ export default function GuardPage() {
     return () => socket.close();
   }, [userId, soundEnabled]);
 
-  // ✅ 소리 허용
   const handleEnableSound = () => {
     setSoundEnabled(true);
+    // 🔊 사용자 제스처로 오디오 컨텍스트 활성화
     if (acceptAudio.current && rejectAudio.current) {
       acceptAudio.current.play().then(() => {
         acceptAudio.current!.pause();
@@ -123,11 +91,37 @@ export default function GuardPage() {
     console.log("🔔 소리 허용됨");
   };
 
+  // const [checkedVisitors, setCheckedVisitors] = useState<any[]>([]);
+  // const fetchInitial = async () => {
+  //   try {
+  //     const [noChecked, checked] = await Promise.all([
+  //       axios.get(`${API_URL}/api/visit/no_checked/`),
+  //       axios.get(`${API_URL}/api/visit/checked/`),
+  //     ]);
+  //     console.log(noChecked);
+  //     console.log(checked);
+  //     const pendingMessages: Message[] = noChecked.data.map((v) => ({
+  //       sender: v.professor_name || "없음",
+  //       visitor: v.name,
+  //       text: "방문을 수락했습니다",
+  //       token: v.token,
+  //     }));
+  //     setMessages(pendingMessages);
+  //     setCheckedVisitors(checked.data);
+  //   } catch (err) {
+  //     console.log("에러", err);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchInitial();
+  // }, []);
+
   return (
     <div
       style={{
         padding: 20,
-        maxWidth: 420,
+        maxWidth: 400,
         margin: "0 auto",
         border: "1px solid #ccc",
         borderRadius: 10,
@@ -137,8 +131,9 @@ export default function GuardPage() {
         flexDirection: "column",
       }}
     >
+      {/* <h2 style={{ textAlign: "center" }}>💬 Chat Room - User {userId}</h2> */}
       <h2 style={{ textAlign: "center" }}>경비원</h2>
-
+      {/* 🔊 알림 허용 버튼 */}
       {!soundEnabled && (
         <button
           onClick={handleEnableSound}
@@ -155,9 +150,13 @@ export default function GuardPage() {
           🔊 알림(소리) 허용
         </button>
       )}
-
-      {/* ✅ 채팅 메시지 표시 */}
+      {/* 채팅창 */}
       <ChatComponent messages={messages} userId={userId} />
+      {/* {checkedVisitors.length === 0 ? (
+        <div>현재확인된 방문자없음</div>
+      ) : (
+        checkedVisitors.map((v: any) => <div>{v.name}</div>)
+      )} */}
     </div>
   );
 }
