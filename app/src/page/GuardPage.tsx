@@ -17,23 +17,21 @@ export default function GuardPage() {
   const [, setWs] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [soundEnabled, setSoundEnabled] = useState(false);
-  const [initialized, setInitialized] = useState(false);
+
   const API_URL = import.meta.env.VITE_API_URL;
-
-  // 🎧 사운드 오디오
-  const acceptAudio = useRef<HTMLAudioElement | null>(null);
-  const rejectAudio = useRef<HTMLAudioElement | null>(null);
-
   const apiHost = API_URL.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
 
-  // ✅ 오디오 미리 로드
+  // 🎧 사운드 준비
+  const acceptAudio = useRef<HTMLAudioElement | null>(null);
+  const rejectAudio = useRef<HTMLAudioElement | null>(null);
+
   useEffect(() => {
     acceptAudio.current = new Audio(acceptSound);
     rejectAudio.current = new Audio(rejectSound);
   }, []);
 
-  // ✅ 초기 방문자 목록 불러오기
+  // ✅ 초기 방문자 데이터 가져오기 (덮어쓰기 ❌ 병합 ✅)
   const fetchInitial = async () => {
     try {
       const [noChecked] = await Promise.all([
@@ -48,7 +46,7 @@ export default function GuardPage() {
         token: v.token,
       }));
 
-      // ✅ 기존 메시지 덮어쓰지 말고 병합
+      // 🔥 기존 메시지와 병합 (덮어쓰기 금지)
       setMessages((prev) => {
         const existingTokens = new Set(prev.map((m) => m.token));
         const newOnes = pendingMessages.filter(
@@ -57,21 +55,19 @@ export default function GuardPage() {
         return [...prev, ...newOnes];
       });
 
-      setInitialized(true);
+      console.log("✅ 초기 방문자 로드 완료");
     } catch (err) {
       console.error("❌ 초기 방문자 불러오기 실패:", err);
     }
   };
 
-  // ✅ 최초 한 번만 초기 데이터 로드
+  // ✅ 페이지 최초 진입 시 한 번 실행
   useEffect(() => {
-    if (!initialized) fetchInitial();
-  }, [initialized]);
+    fetchInitial();
+  }, []);
 
-  // ✅ WebSocket 연결 (초기화 완료 후에 실행)
+  // ✅ WebSocket 연결
   useEffect(() => {
-    if (!initialized) return;
-
     const socket = new WebSocket(`${wsProtocol}://${apiHost}/ws/chat/1/`);
     setWs(socket);
 
@@ -95,7 +91,7 @@ export default function GuardPage() {
           return [...prev, { sender, visitor, text: text || "", token }];
         });
 
-        // 🔊 소리 알림
+        // 🔊 사운드 알림
         if (soundEnabled && sender !== `User_${userId}`) {
           if (text?.includes("수락")) {
             acceptAudio.current?.play().catch(() => {});
@@ -109,9 +105,9 @@ export default function GuardPage() {
     };
 
     return () => socket.close();
-  }, [initialized, userId, soundEnabled]);
+  }, [userId, soundEnabled]);
 
-  // 🔊 소리 허용 버튼 클릭
+  // ✅ 소리 허용
   const handleEnableSound = () => {
     setSoundEnabled(true);
     if (acceptAudio.current && rejectAudio.current) {
@@ -160,7 +156,7 @@ export default function GuardPage() {
         </button>
       )}
 
-      {/* ✅ 채팅 컴포넌트 */}
+      {/* ✅ 채팅 메시지 표시 */}
       <ChatComponent messages={messages} userId={userId} />
     </div>
   );
