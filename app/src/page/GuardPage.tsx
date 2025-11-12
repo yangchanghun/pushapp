@@ -28,7 +28,7 @@ export default function GaurdPage() {
   useEffect(() => {
     const fetchOldMessages = async () => {
       try {
-        const res = await fetch(`${apiBase}/api/visit/checked/`);
+        const res = await fetch(`${apiBase}/api/visit/no_checked/`);
         const data = await res.json();
 
         const formatted = data.map((item: any) => ({
