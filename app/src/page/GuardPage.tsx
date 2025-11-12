@@ -95,12 +95,12 @@ export default function GaurdPage() {
   const fetchInitial = async () => {
     try {
       const [noChecked, checked] = await Promise.all([
-        axios.get(`${API_URL}/api/visit/no_chekd/`),
+        axios.get(`${API_URL}/api/visit/no_checked/`),
         axios.get(`${API_URL}/api/visit/checked/`),
       ]);
       console.log(noChecked);
       console.log(checked);
-      const pendingMessages: Message[] = noChecked.data.map((v) => ({
+      const pendingMessages: Message[] = noChecked.data.map((v: any) => ({
         sender: v.professor_name || "없음",
         visitor: v.name,
         text: "방문을 수락했습니다",
