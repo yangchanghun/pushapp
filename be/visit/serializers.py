@@ -15,5 +15,6 @@ class VisitorsSerializer(serializers.ModelSerializer):
             'created_at',
             'is_checked',
             'token',
-            'professor_name',   # ✅ 교수 이름 필드 추가
+            'professor',        # ✅ ForeignKey 필드 추가 (입력용)
+            'professor_name',   # ✅ 출력용
         ]
