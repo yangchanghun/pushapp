@@ -179,7 +179,7 @@ def checked_visit_list(request):
     visits = Visitors.objects.filter(
         Q(is_checked=True),
         Q(status="수락") | Q(status="거절")
-    ).order_by("-created_at")
+    )#.order_by("-created_at")
 
     serializer = VisitorsSerializers(visits, many=True)
     return Response(serializer.data)
@@ -193,7 +193,7 @@ def no_checked_visit_list(request):
     visits = Visitors.objects.filter(
         Q(is_checked=False),
         Q(status="수락") | Q(status = "거절")   # ✅ 교수가 응답함
-    ).order_by("-created_at")
+    )#.order_by("-created_at")
 
     serializer = VisitorsSerializers(visits, many=True)
     return Response(serializer.data)
