@@ -23,7 +23,7 @@ export default function VisitorDetailModal({
 }: VisitorDetailModalProps) {
   const [visitor, setVisitor] = useState<Visitor | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const [submitting, setSubmitting] = useState(false);
   useEffect(() => {
     axios
       .get(`${API_URL}/api/visit/detail/${token}/`)
@@ -39,6 +39,19 @@ export default function VisitorDetailModal({
       </div>
     );
   }
+  const handleConfirm = async () => {
+    try {
+      setSubmitting(true);
+      const res = await axios.post(`${API_URL}/api/visit/check/`, { token });
+      alert(res.data.message || "확인 완료!");
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert("처리 중 오류가 발생했습니다.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (!visitor) return null;
 
@@ -73,6 +86,25 @@ export default function VisitorDetailModal({
         >
           ✕
         </button>
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100"
+          >
+            취소
+          </button>
+          <button
+            onClick={handleConfirm}
+            disabled={submitting}
+            className={`px-4 py-2 rounded-lg text-white ${
+              submitting
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
+          >
+            {submitting ? "처리 중..." : "확인"}
+          </button>
+        </div>
       </div>
     </div>
   );
