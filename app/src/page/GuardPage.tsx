@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import acceptSound from "@/assets/voice/accept.mp3";
 import rejectSound from "@/assets/voice/reject.mp3";
 import ChatComponent from "../components/ChatComponent";
-import axios from "axios";
 type Message = {
   sender: string;
   text: string;
@@ -17,48 +16,13 @@ export default function GaurdPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   // const [input, setInput] = useState("");
   const [soundEnabled, setSoundEnabled] = useState(false);
-  const [checkedVisitors, setCheckedVisitors] = useState<any[]>([]);
+
   // 🎧 미리 로드한 오디오 객체를 useRef로 관리
   const acceptAudio = useRef<HTMLAudioElement | null>(null);
   const rejectAudio = useRef<HTMLAudioElement | null>(null);
-  const API_URL = "https://pushapp.kioedu.co.kr";
-  // const API_URL = import.meta.env.VITE_API_URL;
+
   const apiHost = import.meta.env.VITE_API_URL.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-
-  // ✅ 초기 방문자 로드
-  const fetchInitial = async () => {
-    try {
-      const [noChecked, checked] = await Promise.all([
-        axios.get(`${API_URL}/api/visit/no_checked/`),
-        axios.get(`${API_URL}/api/visit/checked/`),
-      ]);
-      console.log(noChecked);
-      const pendingMessages: Message[] = noChecked.data.map((v: any) => ({
-        sender: v.professor_name || "없음",
-        visitor: v.name,
-        text: "요청이 도착했습니다.",
-        token: v.token,
-      }));
-
-      // ✅ 기존 메시지 유지하고, 새 데이터만 추가
-      setMessages((prev) => {
-        const existingTokens = new Set(prev.map((m) => m.token));
-        const newOnes = pendingMessages.filter(
-          (m) => !existingTokens.has(m.token)
-        );
-        return [...prev, ...newOnes];
-      });
-
-      setCheckedVisitors(checked.data);
-    } catch (err) {
-      console.error("❌ 초기 방문자 목록 불러오기 실패:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchInitial();
-  }, []);
 
   useEffect(() => {
     acceptAudio.current = new Audio(acceptSound);
@@ -168,52 +132,6 @@ export default function GaurdPage() {
       )}
       {/* 채팅창 */}
       <ChatComponent messages={messages} userId={userId} />
-
-      {/* ✅ 오른쪽: 확인된 방문자 */}
-      <div
-        style={{
-          border: "1px solid #ddd",
-          borderRadius: 10,
-          background: "#fff",
-          overflowY: "auto",
-          padding: 10,
-        }}
-      >
-        <h2
-          style={{
-            textAlign: "center",
-            background: "#16a34a",
-            color: "white",
-            margin: 0,
-            padding: "10px 0",
-          }}
-        >
-          ✅ 확인된 방문자
-        </h2>
-
-        {checkedVisitors.length === 0 ? (
-          <p style={{ textAlign: "center", color: "#888", marginTop: 20 }}>
-            아직 확인된 방문자 없음
-          </p>
-        ) : (
-          checkedVisitors.map((v) => (
-            <div
-              key={v.id}
-              style={{
-                borderBottom: "1px solid #eee",
-                padding: "8px 4px",
-                fontSize: 14,
-              }}
-            >
-              <strong>{v.name}</strong>
-              <p style={{ margin: 0 }}>{v.visit_purpose}</p>
-              <small style={{ color: "#999" }}>
-                {new Date(v.created_at).toLocaleString()}
-              </small>
-            </div>
-          ))
-        )}
-      </div>
     </div>
   );
 }
