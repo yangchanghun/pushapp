@@ -19,26 +19,35 @@ export default function ChatComponent({
 }: ChatComponentProps) {
   const [selectedToken, setSelectedToken] = useState<string | null>(null);
 
-  // ✅ 채팅창 스크롤 기준 ref
-  const chatEndRef = useRef<HTMLDivElement | null>(null);
+  // ✅ 스크롤 가능한 컨테이너 ref
+  const chatContainerRef = useRef<HTMLDivElement | null>(null);
 
+  // ✅ 페이지 렌더 완료 후 맨 아래로 스크롤 (새로고침 시)
   useEffect(() => {
-    // 페이지 렌더링 후 스크롤을 맨 아래로 이동
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollTop = chatEndRef.current.scrollHeight;
+    const container = chatContainerRef.current;
+    if (container) {
+      // 렌더 끝난 뒤 스크롤 이동 (setTimeout으로 딜레이 1프레임 줌)
+      setTimeout(() => {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: "auto", // 부드럽게 하고 싶다면 "smooth"
+        });
+      }, 0);
     }
-  }, []); // 의존성 배열을 비워두어 마운트 시 한 번만 실행
+  }, []); // ✅ 새로고침(마운트) 시 한 번만 실행
+
   return (
     <div
-      ref={chatEndRef}
+      ref={chatContainerRef}
       style={{
         flex: 1,
-        overflowY: "auto",
+        overflowY: "auto", // ✅ 스크롤 가능해야 함
         display: "flex",
         flexDirection: "column",
         gap: 6,
         padding: 10,
         minWidth: "500px",
+        height: "100%",
       }}
     >
       {messages.map((msg, i) => {
@@ -102,7 +111,6 @@ export default function ChatComponent({
         );
       })}
 
-      {/* ✅ 모달은 map 밖에서 렌더링 */}
       {selectedToken && (
         <VisitorDetailModal
           token={selectedToken}
