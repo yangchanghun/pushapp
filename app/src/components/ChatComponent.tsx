@@ -22,14 +22,12 @@ export default function ChatComponent({
   // ✅ 채팅창 스크롤 기준 ref
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
-  // ✅ 메시지 추가될 때마다 아래로 스크롤
   useEffect(() => {
+    // 페이지 렌더링 후 스크롤을 맨 아래로 이동
     if (chatEndRef.current) {
-      // 스크롤이 100% 끝까지 내려감
-      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+      chatEndRef.current.scrollTop = chatEndRef.current.scrollHeight;
     }
-  }, [messages]);
-
+  }, []); // 의존성 배열을 비워두어 마운트 시 한 번만 실행
   return (
     <div
       style={{
@@ -46,6 +44,7 @@ export default function ChatComponent({
         const isMine = msg.sender === `User_${userId}`;
         return (
           <div
+            ref={chatEndRef}
             key={i}
             style={{
               display: "flex",
@@ -102,9 +101,6 @@ export default function ChatComponent({
           </div>
         );
       })}
-
-      {/* ✅ 스크롤 기준점 */}
-      <div ref={chatEndRef} />
 
       {/* ✅ 모달은 map 밖에서 렌더링 */}
       {selectedToken && (
