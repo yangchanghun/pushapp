@@ -30,6 +30,7 @@ export default function ChatComponent({
   }, []); // 의존성 배열을 비워두어 마운트 시 한 번만 실행
   return (
     <div
+      ref={chatEndRef}
       style={{
         flex: 1,
         overflowY: "auto",
@@ -44,7 +45,6 @@ export default function ChatComponent({
         const isMine = msg.sender === `User_${userId}`;
         return (
           <div
-            ref={chatEndRef}
             key={i}
             style={{
               display: "flex",
