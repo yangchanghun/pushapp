@@ -162,7 +162,12 @@ export default function GaurdPage() {
         </button>
       )}
 
-      <ChatComponent messages={messages} userId={userId} />
+      <ChatComponent
+        messages={messages}
+        userId={userId}
+        setMessages={setMessages}
+        setCheckedMessages={setCheckedMessages}
+      />
       <CheckedChatComponent messages={checkedMessages} userId={userId} />
     </div>
   );
