@@ -34,7 +34,7 @@ export default function GaurdPage() {
         axios.get(`${API_URL}/api/visit/checked/`),
       ]);
       console.log(noChecked);
-      const pendingMessages = noChecked.data.map((v: any) => ({
+      const pendingMessages: Message[] = noChecked.data.map((v: any) => ({
         sender: v.professor_name || "없음",
         visitor: v.name,
         text: "요청이 도착했습니다.",
