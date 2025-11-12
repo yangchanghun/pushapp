@@ -21,7 +21,8 @@ export default function GaurdPage() {
   // 🎧 미리 로드한 오디오 객체를 useRef로 관리
   const acceptAudio = useRef<HTMLAudioElement | null>(null);
   const rejectAudio = useRef<HTMLAudioElement | null>(null);
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = "https://pushapp.kioedu.co.kr";
+  // const API_URL = import.meta.env.VITE_API_URL;
   const apiHost = import.meta.env.VITE_API_URL.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
 
@@ -32,16 +33,23 @@ export default function GaurdPage() {
         axios.get(`${API_URL}/api/visit/no_checked/`),
         axios.get(`${API_URL}/api/visit/checked/`),
       ]);
-
-      // ChatComponent에 표시할 메시지화
+      console.log(noChecked);
       const pendingMessages = noChecked.data.map((v: any) => ({
-        sender: "시스템",
+        sender: v.professor_name || "없음",
         visitor: v.name,
         text: "요청이 도착했습니다.",
         token: v.token,
       }));
 
-      setMessages(pendingMessages);
+      // ✅ 기존 메시지 유지하고, 새 데이터만 추가
+      setMessages((prev) => {
+        const existingTokens = new Set(prev.map((m) => m.token));
+        const newOnes = pendingMessages.filter(
+          (m) => !existingTokens.has(m.token)
+        );
+        return [...prev, ...newOnes];
+      });
+
       setCheckedVisitors(checked.data);
     } catch (err) {
       console.error("❌ 초기 방문자 목록 불러오기 실패:", err);
