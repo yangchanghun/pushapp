@@ -7,13 +7,12 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Visitors
-from .serializers import VisitorsSerializer
-from rest_framework.decorators import api_view
-from uuid import UUID
-from rest_framework import generics
+from .serializers import VisitorSerializer
+
+
 class VisitorCreateView(APIView):
     def post(self, request):
-        serializer = VisitorsSerializer(data=request.data)
+        serializer = VisitorSerializer(data=request.data)
         if serializer.is_valid():
             visitor = serializer.save()
 
@@ -30,10 +29,16 @@ class VisitorCreateView(APIView):
 
 
 
+from rest_framework import generics
+from .models import Visitors
+from .serializers import VisitorSerializer
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
 
 class VisitorDetailView(generics.RetrieveAPIView):
     queryset = Visitors.objects.all()
-    serializer_class = VisitorsSerializer
+    serializer_class = VisitorSerializer
     lookup_field = "token"  # URL에서 token으로 조회 가능
 
     # 선택적으로 name으로도 조회 원할 때
@@ -56,7 +61,11 @@ class VisitorDetailView(generics.RetrieveAPIView):
 
 
 
-
+from rest_framework.decorators import api_view
+from uuid import UUID
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Visitors
 
 
 @api_view(["GET"])
@@ -144,37 +153,3 @@ def reject_visit(request, token):
     )
 
     return HttpResponse("❌ 방문이 거절되었습니다.")
-
-
-
-@api_view(["POST"])
-def check_visit(request):
-    token = request.data.get("token")
-    try:
-        visit = Visitors.objects.get(token=token)
-        visit.is_checked = True
-        visit.save()  # ✅ 반드시 저장
-        return Response({"message": "경비원이 방문을 확인했습니다."})
-    except Visitors.DoesNotExist:
-        return Response({"error": "해당 방문자가 존재하지 않습니다."}, status=404)
-    
-
-
-@api_view(["GET"])
-def checked_visit_list(request):
-    """
-    ✅ 경비원이 확인한 방문자 목록
-    """
-    visits = Visitors.objects.filter(is_checked=True).order_by("-created_at")
-    serializer = VisitorsSerializer(visits, many=True)
-    return Response(serializer.data)
-
-
-@api_view(["GET"])
-def no_checked_visit_list(request):
-    """
-    🚫 아직 확인되지 않은 방문자 목록
-    """
-    visits = Visitors.objects.filter(is_checked=False).order_by("-created_at")
-    serializer = VisitorsSerializer(visits, many=True)
-    return Response(serializer.data)
