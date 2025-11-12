@@ -57,7 +57,7 @@ export default function VisitorDetailModal({
           text: `을 ${visitor.status}했습니다.`,
           token: visitor.token,
         };
-        setCheckedMessages((prev) => [newChecked, ...prev]); // 위쪽에 추가
+        setCheckedMessages((prev) => [...prev, newChecked]);
       }
 
       onClose();
