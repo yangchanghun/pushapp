@@ -44,7 +44,8 @@ export default function GaurdPage() {
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data); // ✅ { message, token }
-
+        console.log("들어오냐?");
+        console.log(data);
         if (!data.message) return; // 연결확인용 메시지 무시
 
         const { message, token } = data;
