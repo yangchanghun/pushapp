@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import acceptSound from "@/assets/voice/accept.mp3";
 import rejectSound from "@/assets/voice/reject.mp3";
 import ChatComponent from "../components/ChatComponent";
-// import axios from "axios";
+import axios from "axios";
 type Message = {
   sender: string;
   text: string;
@@ -17,7 +17,7 @@ export default function GaurdPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   // const [input, setInput] = useState("");
   const [soundEnabled, setSoundEnabled] = useState(false);
-  // const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL;
   // 🎧 미리 로드한 오디오 객체를 useRef로 관리
   const acceptAudio = useRef<HTMLAudioElement | null>(null);
   const rejectAudio = useRef<HTMLAudioElement | null>(null);
@@ -25,6 +25,9 @@ export default function GaurdPage() {
   const apiHost = import.meta.env.VITE_API_URL.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
 
+  useEffect(() => {
+    fetchInitial();
+  }, []);
   useEffect(() => {
     acceptAudio.current = new Audio(acceptSound);
     rejectAudio.current = new Audio(rejectSound);
@@ -91,31 +94,36 @@ export default function GaurdPage() {
     console.log("🔔 소리 허용됨");
   };
 
-  // const [checkedVisitors, setCheckedVisitors] = useState<any[]>([]);
-  // const fetchInitial = async () => {
-  //   try {
-  //     const [noChecked, checked] = await Promise.all([
-  //       axios.get(`${API_URL}/api/visit/no_checked/`),
-  //       axios.get(`${API_URL}/api/visit/checked/`),
-  //     ]);
-  //     console.log(noChecked);
-  //     console.log(checked);
-  //     const pendingMessages: Message[] = noChecked.data.map((v) => ({
-  //       sender: v.professor_name || "없음",
-  //       visitor: v.name,
-  //       text: "방문을 수락했습니다",
-  //       token: v.token,
-  //     }));
-  //     setMessages(pendingMessages);
-  //     setCheckedVisitors(checked.data);
-  //   } catch (err) {
-  //     console.log("에러", err);
-  //   }
-  // };
+  const [checkedVisitors, setCheckedVisitors] = useState<any[]>([]);
+  const fetchInitial = async () => {
+    try {
+      const [noChecked, checked] = await Promise.all([
+        axios.get(`${API_URL}/api/visit/no_checked/`),
+        axios.get(`${API_URL}/api/visit/checked/`),
+      ]);
 
-  // useEffect(() => {
-  //   fetchInitial();
-  // }, []);
+      const pendingMessages: Message[] = noChecked.data.map((v: any) => ({
+        sender: v.professor_name || "없음",
+        visitor: v.name,
+        text: "방문을 수락했습니다",
+        token: v.token,
+      }));
+
+      // ✅ 병합 방식으로 기존 메시지 유지 + 새 데이터 추가
+      setMessages((prev) => {
+        const existingTokens = new Set(prev.map((m) => m.token));
+        const newOnes = pendingMessages.filter(
+          (m) => !existingTokens.has(m.token)
+        );
+        return [...prev, ...newOnes];
+      });
+
+      setCheckedVisitors(checked.data);
+      // checkedVisitors도 같은 방식으로 병합 가능
+    } catch (err) {
+      console.log("에러", err);
+    }
+  };
 
   return (
     <div
@@ -152,11 +160,11 @@ export default function GaurdPage() {
       )}
       {/* 채팅창 */}
       <ChatComponent messages={messages} userId={userId} />
-      {/* {checkedVisitors.length === 0 ? (
+      {checkedVisitors.length === 0 ? (
         <div>현재확인된 방문자없음</div>
       ) : (
         checkedVisitors.map((v: any) => <div>{v.name}</div>)
-      )} */}
+      )}
     </div>
   );
 }
