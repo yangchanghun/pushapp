@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import VisitorDetailModal from "../modal/VisitConfirm";
 
 type Message = {
@@ -18,7 +18,15 @@ export default function ChatComponent({
   userId,
 }: ChatComponentProps) {
   const [selectedToken, setSelectedToken] = useState<string | null>(null);
+  // ✅ 채팅창 스크롤 ref
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
 
+  // ✅ 메시지 추가될 때마다 아래로 자동 스크롤
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
   return (
     <div
       style={{

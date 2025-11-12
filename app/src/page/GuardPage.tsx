@@ -23,15 +23,6 @@ export default function GaurdPage() {
   const apiBase = import.meta.env.VITE_API_URL;
   const apiHost = apiBase.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-  // ✅ 채팅창 스크롤 ref
-  const chatEndRef = useRef<HTMLDivElement | null>(null);
-
-  // ✅ 메시지 추가될 때마다 아래로 자동 스크롤
-  useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
   // ✅ 1. 기존 방문기록 불러오기
   useEffect(() => {
     const fetchOldMessages = async () => {
