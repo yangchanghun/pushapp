@@ -7,13 +7,13 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Visitors
-from .serializers import VisitorSerializer
+from .serializers import VisitorsSerializer
 from rest_framework.decorators import api_view
 from uuid import UUID
 from rest_framework import generics
 class VisitorCreateView(APIView):
     def post(self, request):
-        serializer = VisitorSerializer(data=request.data)
+        serializer = VisitorsSerializer(data=request.data)
         if serializer.is_valid():
             visitor = serializer.save()
 
@@ -33,7 +33,7 @@ class VisitorCreateView(APIView):
 
 class VisitorDetailView(generics.RetrieveAPIView):
     queryset = Visitors.objects.all()
-    serializer_class = VisitorSerializer
+    serializer_class = VisitorsSerializer
     lookup_field = "token"  # URL에서 token으로 조회 가능
 
     # 선택적으로 name으로도 조회 원할 때
@@ -166,7 +166,7 @@ def checked_visit_list(request):
     ✅ 경비원이 확인한 방문자 목록
     """
     visits = Visitors.objects.filter(is_checked=True).order_by("-created_at")
-    serializer = VisitorSerializer(visits, many=True)
+    serializer = VisitorsSerializer(visits, many=True)
     return Response(serializer.data)
 
 
@@ -176,5 +176,5 @@ def no_checked_visit_list(request):
     🚫 아직 확인되지 않은 방문자 목록
     """
     visits = Visitors.objects.filter(is_checked=False).order_by("-created_at")
-    serializer = VisitorSerializer(visits, many=True)
+    serializer = VisitorsSerializer(visits, many=True)
     return Response(serializer.data)
