@@ -18,15 +18,18 @@ export default function ChatComponent({
   userId,
 }: ChatComponentProps) {
   const [selectedToken, setSelectedToken] = useState<string | null>(null);
-  // ✅ 채팅창 스크롤 ref
+
+  // ✅ 채팅창 스크롤 기준 ref
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
-  // ✅ 메시지 추가될 때마다 아래로 자동 스크롤
+  // ✅ 메시지 추가될 때마다 아래로 스크롤
   useEffect(() => {
     if (chatEndRef.current) {
+      // 스크롤이 100% 끝까지 내려감
       chatEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
+
   return (
     <div
       style={{
@@ -81,10 +84,7 @@ export default function ChatComponent({
                 </span>
                 방문{msg.text}
                 <button
-                  onClick={() => {
-                    console.log(msg.token);
-                    setSelectedToken(msg.token);
-                  }}
+                  onClick={() => setSelectedToken(msg.token)}
                   style={{
                     marginLeft: "10px",
                     background: "#007bff",
@@ -103,13 +103,14 @@ export default function ChatComponent({
         );
       })}
 
-      {/* ✅ 모달은 map 밖에서 렌더링해야 함 */}
+      {/* ✅ 스크롤 기준점 */}
+      <div ref={chatEndRef} />
+
+      {/* ✅ 모달은 map 밖에서 렌더링 */}
       {selectedToken && (
         <VisitorDetailModal
           token={selectedToken}
-          onClose={() => {
-            setSelectedToken(null);
-          }}
+          onClose={() => setSelectedToken(null)}
         />
       )}
     </div>
