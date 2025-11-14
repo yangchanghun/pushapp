@@ -32,9 +32,11 @@ export default function ProfessorModal({
   const itemsPerPage = 10; // 한 페이지당 10명
 
   useEffect(() => {
+    console.log("들어오냐요");
     axios
       .get(`${API_URL}/api/professors/list/`)
       .then((res: { data: Professor[] }) => {
+        console.log("res:", res);
         setProfessors(res.data);
         setFiltered(res.data);
       })
