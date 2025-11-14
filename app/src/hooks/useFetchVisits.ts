@@ -5,13 +5,13 @@ import type { VisitResponse } from "../types/visit";
 export default function useFetchVisits(apiBase: string) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [checkedMessages, setCheckedMessages] = useState<Message[]>([]);
-
+  console.log("들어오긴하냐?");
   // no_checked
   useEffect(() => {
     async function load() {
       const res = await fetch(`${apiBase}/api/visit/no_checked/`);
       const data: VisitResponse[] = await res.json();
-
+      console.log(data);
       setMessages(
         data.map((item) => ({
           sender: item.professor_name || "교수",
@@ -28,8 +28,10 @@ export default function useFetchVisits(apiBase: string) {
   // checked
   useEffect(() => {
     async function load() {
+      console.log("들어오냐고");
       const res = await fetch(`${apiBase}/api/visit/checked/`);
       const data: VisitResponse[] = await res.json();
+      console.log(res);
       setCheckedMessages(
         data.map((item) => ({
           sender: item.professor_name || "교수",
