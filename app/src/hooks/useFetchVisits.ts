@@ -10,8 +10,8 @@ export default function useFetchVisits(apiBase: string) {
   useEffect(() => {
     async function load() {
       const res = await fetch(`${apiBase}/api/visit/no_checked/`);
+      console.log("data:", res);
       const data: VisitResponse[] = await res.json();
-      console.log("data:", data);
 
       setMessages(
         data.map((item) => ({
