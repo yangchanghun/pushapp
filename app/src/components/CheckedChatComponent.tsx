@@ -1,12 +1,5 @@
 import { useRef, useLayoutEffect } from "react";
-// import VisitorDetailModal from "../modal/VisitConfirm";
-
-type Message = {
-  sender: string;
-  visitor: string;
-  text: string;
-  token: string;
-};
+import type { Message } from "../types/messages";
 
 interface ChatComponentProps {
   messages: Message[];
@@ -21,7 +14,7 @@ export default function CheckedChatComponent({
 
   // ✅ 스크롤 가능한 컨테이너 ref
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
-
+  console.log(messages);
   // ✅ 렌더 직후 항상 맨 아래로 (초기 진입 + 새로고침 포함)
   useLayoutEffect(() => {
     const container = chatContainerRef.current;
@@ -65,6 +58,7 @@ export default function CheckedChatComponent({
                 }}
               >
                 {msg.sender}
+                <span> {new Date(msg.createdAt).toLocaleString()}</span>
               </div>
             )}
             <div
@@ -85,20 +79,6 @@ export default function CheckedChatComponent({
                   {msg.visitor}님
                 </span>
                 방문{msg.text}
-                {/* <button
-                  onClick={() => setSelectedToken(msg.token)}
-                  style={{
-                    marginLeft: "10px",
-                    background: "#007bff",
-                    color: "white",
-                    border: "none",
-                    padding: "5px 10px",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                  }}
-                >
-                  확인
-                </button> */}
               </div>
             </div>
           </div>

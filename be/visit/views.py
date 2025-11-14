@@ -8,14 +8,19 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Visitors
 from .serializers import VisitorSerializer
-
+from .serializers import VisitorsSerializers
+from django.db.models import Q
+from professors.models import Professors
 
 class VisitorCreateView(APIView):
     def post(self, request):
         serializer = VisitorSerializer(data=request.data)
         if serializer.is_valid():
             visitor = serializer.save()
-
+            professor_id = serializer.data['professor']
+            professor_phonenumber = Professors.objects.get(id = professor_id).phonenumber
+            # 위 폰넘버에다가 문자 보냄
+            # http://localhost:5173/acceptreject/{token} 이거
             # ✅ token 접근
             token = serializer.data["token"]
 
@@ -38,7 +43,7 @@ from django.shortcuts import get_object_or_404
 
 class VisitorDetailView(generics.RetrieveAPIView):
     queryset = Visitors.objects.all()
-    serializer_class = VisitorSerializer
+    serializer_class = VisitorsSerializers
     lookup_field = "token"  # URL에서 token으로 조회 가능
 
     # 선택적으로 name으로도 조회 원할 때
@@ -104,6 +109,7 @@ def check_token_valid(request, token):
 def accept_visit(request, token):
     try:
         visitor = Visitors.objects.get(token=token)
+        print("안녕")
     except Visitors.DoesNotExist:
         return HttpResponse("❌ 잘못된 요청입니다.", status=400)
 
@@ -112,6 +118,9 @@ def accept_visit(request, token):
 
     visitor.status = "수락"
     visitor.save()
+    print(visitor.phonenumber)
+    # visitor.phone_number을 가져와서
+    # 여기다가도 원하면 문자 전송
 
     sender = visitor.professor.name if visitor.professor else "교수"
     message = f"{visitor.name} 방문을 수락했습니다."
@@ -121,7 +130,8 @@ def accept_visit(request, token):
         {
             "type": "chat_message",
             "message": f"{sender}: {message}",
-            "token": str(token)  # ✅ UUID → 문자열 변환
+            "token": str(token),  # ✅ UUID → 문자열 변환
+            "created_at": visitor.created_at.isoformat(),  # ⭐ 추가
         }
     )
 
@@ -148,7 +158,8 @@ def reject_visit(request, token):
         {
             "type": "chat_message",
             "message": f"{sender}: {message}",
-            "token": str(token)  # ✅ UUID → 문자열 변환
+            "token": str(token),  # ✅ UUID → 문자열 변환
+            "created_at": visitor.created_at.isoformat(),   # ⭐ 추가
         }
     )
 
@@ -169,8 +180,7 @@ def check_visit(request):
     except Visitors.DoesNotExist:
         return Response({"error": "해당 방문자가 존재하지 않습니다."}, status=404)
     
-from .serializers import VisitorsSerializers
-from django.db.models import Q
+
 @api_view(["GET"])
 def checked_visit_list(request):
     """

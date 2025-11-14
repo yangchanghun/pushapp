@@ -2,9 +2,9 @@ import { useState } from "react";
 import axios from "axios";
 import ProfessorModal from "../modal/ProfessorModal";
 import sampleImage from "@/assets/sampleImage.jpg";
-const API_URL = "https://pushapp.kioedu.co.kr";
+// const API_URL = "https://pushapp.kioedu.co.kr";
 // const API_URL = import.meta.env.VITE_API_URL;
-
+const API_URL = import.meta.env.VITE_API_URL;
 export default function VisitorForm() {
   const [img, setImg] = useState<string | undefined>(sampleImage);
   const [form, setForm] = useState({
@@ -40,6 +40,12 @@ export default function VisitorForm() {
       setErrorMsg("방문자 등록 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
+      setForm({
+        name: "",
+        phonenumber: "",
+        visit_purpose: "",
+        professor: "",
+      });
     }
   };
 

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
-const API_URL = "https://pushapp.kioedu.co.kr";
+import type { Message } from "../types/messages";
+// const API_URL = "https://pushapp.kioedu.co.kr";
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface Visitor {
   name: string;
@@ -16,8 +17,8 @@ interface Visitor {
 interface VisitorDetailModalProps {
   token: string;
   onClose: () => void;
-  setMessages: React.Dispatch<React.SetStateAction<any[]>>;
-  setCheckedMessages: React.Dispatch<React.SetStateAction<any[]>>;
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  setCheckedMessages: React.Dispatch<React.SetStateAction<Message[]>>;
 }
 
 export default function VisitorDetailModal({
@@ -51,11 +52,13 @@ export default function VisitorDetailModal({
 
       // ✅ 오른쪽(checked)에 추가
       if (visitor) {
+        console.log(visitor);
         const newChecked = {
           sender: visitor.professor_name || "교수",
           visitor: visitor.name,
           text: `을 ${visitor.status}했습니다.`,
           token: visitor.token,
+          createdAt: visitor.created_at,
         };
         setCheckedMessages((prev) => [...prev, newChecked]);
       }

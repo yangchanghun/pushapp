@@ -1,18 +1,12 @@
 import { useState, useRef, useLayoutEffect } from "react";
 import VisitorDetailModal from "../modal/VisitConfirm";
-
-type Message = {
-  sender: string;
-  visitor: string;
-  text: string;
-  token: string;
-};
+import type { Message } from "../types/messages";
 
 interface ChatComponentProps {
   messages: Message[];
   userId: string | undefined;
-  setMessages: React.Dispatch<React.SetStateAction<any[]>>;
-  setCheckedMessages: React.Dispatch<React.SetStateAction<any[]>>;
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  setCheckedMessages: React.Dispatch<React.SetStateAction<Message[]>>;
 }
 
 export default function ChatComponent({
@@ -25,7 +19,7 @@ export default function ChatComponent({
 
   // ✅ 스크롤 가능한 컨테이너 ref
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
-
+  console.log(messages);
   // ✅ 렌더 직후 항상 맨 아래로 (초기 진입 + 새로고침 포함)
   useLayoutEffect(() => {
     const container = chatContainerRef.current;
@@ -69,6 +63,7 @@ export default function ChatComponent({
                 }}
               >
                 {msg.sender}
+                <span> {new Date(msg.createdAt).toLocaleString()}</span>
               </div>
             )}
             <div

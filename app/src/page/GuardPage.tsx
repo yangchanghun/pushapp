@@ -1,149 +1,45 @@
-import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import acceptSound from "@/assets/voice/accept.mp3";
-import rejectSound from "@/assets/voice/reject.mp3";
 import ChatComponent from "../components/ChatComponent";
 import CheckedChatComponent from "../components/CheckedChatComponent";
 
-type Message = {
-  sender: string;
-  text: string;
-  token: string;
-  visitor: string;
-};
+import useFetchVisits from "../hooks/useFetchVisits";
+import useGuardSound from "../hooks/useGuardSound";
+import useGuardSocket from "../hooks/useGuardSocket";
 
 export default function GaurdPage() {
   const { userId } = useParams();
-  const [, setWs] = useState<WebSocket | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-
-  const [checkedMessages, setCheckedMessages] = useState<Message[]>([]);
-
-  const [soundEnabled, setSoundEnabled] = useState(false);
-
-  const acceptAudio = useRef<HTMLAudioElement | null>(null);
-  const rejectAudio = useRef<HTMLAudioElement | null>(null);
-
   const apiBase = import.meta.env.VITE_API_URL;
   const apiHost = apiBase.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
 
-  useEffect(() => {
-    const fetchOldMessages = async () => {
-      try {
-        const res = await fetch(`${apiBase}/api/visit/no_checked/`);
-        const data = await res.json();
+  const { messages, checkedMessages, setMessages, setCheckedMessages } =
+    useFetchVisits(apiBase);
 
-        const formatted = data.map((item: any) => ({
-          sender: item.professor_name || "교수",
-          visitor: item.name,
-          text: `을 ${item.status}했습니다.`,
-          token: item.token,
-        }));
+  const { soundEnabled, enableSound, acceptAudio, rejectAudio } =
+    useGuardSound();
 
-        setMessages(formatted);
-        console.log("✅ 기존 방문기록 불러옴:", formatted);
-      } catch (err) {
-        console.error("❌ 기존 메시지 불러오기 실패:", err);
-      }
-    };
-    fetchOldMessages();
-  }, [apiBase]);
-
-  useEffect(() => {
-    const fetchOldMessages = async () => {
-      try {
-        const res = await fetch(`${apiBase}/api/visit/checked/`);
-        const data = await res.json();
-
-        const formatted = data.map((item: any) => ({
-          sender: item.professor_name || "교수",
-          visitor: item.name,
-          text: `을 ${item.status}했습니다.`,
-          token: item.token,
-        }));
-
-        setCheckedMessages(formatted);
-        console.log("✅ 기존 방문기록 불러옴:", formatted);
-      } catch (err) {
-        console.error("❌ 기존 메시지 불러오기 실패:", err);
-      }
-    };
-    fetchOldMessages();
-  }, [apiBase]);
-
-  // ✅ 2. WebSocket 연결
-  useEffect(() => {
-    acceptAudio.current = new Audio(acceptSound);
-    rejectAudio.current = new Audio(rejectSound);
-
-    const socket = new WebSocket(`${wsProtocol}://${apiHost}/ws/chat/1/`);
-    setWs(socket);
-
-    socket.onopen = () => console.log(`✅ [User ${userId}] 연결됨`);
-    socket.onclose = () => console.log(`❌ [User ${userId}] 연결 종료`);
-    socket.onerror = (err) => console.error(`⚠️ [User ${userId}] 에러:`, err);
-
-    socket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (!data.message) return;
-
-        const { message, token } = data;
-        const [sender, rest] = message.split(": ");
-        const [visitor, text] = rest.split(" 방문");
-
-        const newMsg = {
-          sender,
-          visitor,
-          text: `${text}`,
-          token,
-        };
-
-        // ✅ 실시간 추가
-        setMessages((prev) => [...prev, newMsg]);
-
-        // 🔊 알림
-        if (soundEnabled && sender !== `User_${userId}`) {
-          if (text.includes("수락")) acceptAudio.current?.play();
-          else if (text.includes("거절")) rejectAudio.current?.play();
-        }
-      } catch (err) {
-        console.warn("⚠️ JSON 파싱 실패:", event.data, err);
-      }
-    };
-
-    return () => socket.close();
-  }, [userId, soundEnabled, apiHost, wsProtocol]);
-
-  const handleEnableSound = () => {
-    setSoundEnabled(true);
-    if (acceptAudio.current && rejectAudio.current) {
-      [acceptAudio.current, rejectAudio.current].forEach((audio) => {
-        audio.play().then(() => {
-          audio.pause();
-          audio.currentTime = 0;
-        });
-      });
-    }
-    console.log("🔔 소리 허용됨");
-  };
+  useGuardSocket({
+    userId,
+    apiHost,
+    wsProtocol,
+    soundEnabled,
+    acceptAudio,
+    rejectAudio,
+    setMessages,
+  });
 
   return (
     <div className="flex h-screen w-screen">
-      {/* 왼쪽 절반 */}
+      {/* 왼쪽 */}
       <div className="flex w-1/2 items-center justify-center">
-        {/* 왼쪽 절반 안에서 중앙 정렬 */}
         <div className="flex flex-col items-center justify-center w-[50%]">
-          <div className="flex flex-col border border-gray-300 rounded-xl p-5 w-[400px] h-[90vh] bg-white shadow-lg">
-            <h2 className="text-center text-xl font-semibold mb-3 text-gray-800">
-              경비원
-            </h2>
+          <div className="flex flex-col  p-5 w-[400px] h-[90vh] bg-[#9bbbd4] rounded-xl shadow-lg">
+            <h2 className="text-center text-xl font-semibold mb-3">경비원</h2>
 
             {!soundEnabled && (
               <button
-                onClick={handleEnableSound}
-                className="bg-blue-500 text-white rounded-lg py-2 px-4 mb-3 mx-auto hover:bg-blue-600 transition"
+                onClick={enableSound}
+                className="bg-blue-500 text-white rounded-lg py-2 px-4 mb-3 hover:bg-blue-600"
               >
                 🔊 알림(소리) 허용
               </button>
@@ -159,14 +55,14 @@ export default function GaurdPage() {
         </div>
       </div>
 
-      {/* 오른쪽 절반 */}
-      <div className="flex w-1/2 items-center justify-center border-l border-gray-300">
-        {/* 오른쪽 절반 안에서 중앙 정렬 */}
+      {/* 오른쪽 */}
+      <div className="flex w-1/2 items-center justify-center border-l">
         <div className="flex flex-col items-center justify-center w-[50%]">
-          <div className="flex flex-col border border-gray-300 rounded-xl p-5 w-[400px] h-[90vh] bg-white shadow-lg">
-            <h2 className="text-center text-xl font-semibold mb-3 text-gray-800">
+          <div className="flex flex-col border p-5 w-[400px] h-[90vh] bg-white rounded-xl shadow-lg">
+            <h2 className="text-center text-xl font-semibold mb-3">
               ✅ 확인 완료
             </h2>
+
             <CheckedChatComponent messages={checkedMessages} userId={userId} />
           </div>
         </div>

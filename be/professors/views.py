@@ -15,15 +15,7 @@ class ProfessorCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# # views.py
-# from rest_framework import generics
-# from .models import Professors
-# from .serializers import ProfessorsSerializer
 
-
-# class ProfessorListView(generics.ListAPIView):
-#     queryset = Professors.objects.all().order_by('id')
-#     serializer_class = ProfessorsSerializer
     
 from rest_framework import generics
 from rest_framework.filters import SearchFilter

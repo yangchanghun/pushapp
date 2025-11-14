@@ -4,10 +4,8 @@
 //        } 을 음성메시지로 바꾼다 문자왔습니다음성으로 ㄱ
 
 // 메인페이지 방문등록폼있고 우측상단 관리자전환버튼 있고
-
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-
 type VisitorInfo = {
   name: string;
   visit_purpose: string;
