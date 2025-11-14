@@ -40,6 +40,7 @@ export default function VisitorForm() {
       setErrorMsg("방문자 등록 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
+      setProfessorName("");
       setForm({
         name: "",
         phonenumber: "",

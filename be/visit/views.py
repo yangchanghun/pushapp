@@ -11,27 +11,141 @@ from .serializers import VisitorSerializer
 from .serializers import VisitorsSerializers
 from django.db.models import Q
 from professors.models import Professors
+import requests
+import hashlib
+import base64
+import os
+import time
+# class VisitorCreateView(APIView):
+#     def post(self, request):
+#         serializer = VisitorSerializer(data=request.data)
+#         if serializer.is_valid():
+#             visitor = serializer.save()
+#             professor_id = serializer.data['professor']
+#             professor_phonenumber = Professors.objects.get(id = professor_id).phonenumber
+#             # 위 폰넘버에다가 문자 보냄
+#             # https://pushapp.kioedu.co.kracceptreject/{token} 이거
+#             # ✅ token 접근
+#             token = serializer.data["token"]
 
+#             # ✅ 출력 확인용 로그
+#             print(f"방문자 등록 완료: {visitor.name}")
+#             print(f"Token: {token}")
+#             print(f"Frontend URL: http://localhost:5173/acceptreject/{token}")
+
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# 🔐 SHA512 Base64 함수
+# ------------------------------------------
+def sha512_base64(data: str) -> str:
+    sha = hashlib.sha512()
+    sha.update(data.encode("utf-8"))
+    return base64.b64encode(sha.digest()).decode("utf-8")
+
+
+# ------------------------------------------
+# 🔐 1) 메시지허브 인증 토큰 요청 함수
+# ------------------------------------------
+def get_msg_hub_token(api_key: str, api_pwd: str) -> str:
+    random_str = os.urandom(8).hex()[:12]   # 메시지허브 규칙: 영문+숫자 조합 <= 20자
+    url = f"https://api.msghub.uplus.co.kr/auth/v1/{random_str}"
+
+    # 암호화 규칙: SHA512(Base64(SHA512(apiPwd)) + "." + randomStr)
+    first_hash = sha512_base64(api_pwd)
+    final_pwd = sha512_base64(first_hash + "." + random_str)
+
+    payload = {
+        "apiKey": api_key,
+        "apiPwd": final_pwd
+    }
+
+    res = requests.post(url, json=payload, timeout=10)
+    data = res.json()
+
+    if data.get("code") != "10000":
+        raise Exception(f"Token 발급 실패: {data}")
+
+    return data["data"]["token"]  # accessToken 반환
+
+
+# ------------------------------------------
+# 📩 2) 메시지허브 SMS 발송 함수
+# ------------------------------------------
+def send_sms_with_msg_hub(token: str, callback: str, phone: str, text: str):
+    url = "https://api-send.msghub.uplus.co.kr/xms/sms/v1"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "clickUrlYn": "N",
+        "resvYn": "N",
+        "callback": callback,         # 발신번호(등록된 번호)
+        "msg": text,                  # 메시지 본문
+        "recvInfoLst": [
+            {
+                "cliKey": f"visitor_{int(time.time())}",   # 고객당 unique 값
+                "phone": phone
+            }
+        ]
+    }
+
+    res = requests.post(url, headers=headers, json=payload)
+    return res.json()
+
+
+# ------------------------------------------
+# 🎯 방문자 생성 + 문자 전송
+# ------------------------------------------
 class VisitorCreateView(APIView):
     def post(self, request):
         serializer = VisitorSerializer(data=request.data)
+
         if serializer.is_valid():
             visitor = serializer.save()
-            professor_id = serializer.data['professor']
-            professor_phonenumber = Professors.objects.get(id = professor_id).phonenumber
-            # 위 폰넘버에다가 문자 보냄
-            # http://localhost:5173/acceptreject/{token} 이거
-            # ✅ token 접근
+
+            professor_id = serializer.data["professor"]
+            professor_phonenumber = Professors.objects.get(id=professor_id).phonenumber
+
             token = serializer.data["token"]
+            link_url = f"https://pushapp.kioedu.co.kr/a/{token}"
 
-            # ✅ 출력 확인용 로그
-            print(f"방문자 등록 완료: {visitor.name}")
-            print(f"Token: {token}")
-            print(f"Frontend URL: http://localhost:5173/acceptreject/{token}")
+            print(f"방문자 등록: {visitor.name}")
+            print(f"전송 URL: {link_url}")
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # ------------------------------------------
+            # 🔐 1) 메시지허브 인증 토큰 발급
+            # ------------------------------------------
+            api_key = "APIcO48Z"
+            api_pwd = "kkhok@0426"        # 암호화 처리됨
 
+            try:
+                access_token = get_msg_hub_token(api_key, api_pwd)
+                print("JWT Access Token 발급 성공")
+            except Exception as e:
+                print("❌ 인증 실패:", e)
+                return Response({"error": "인증 실패"}, status=500)
+
+            # ------------------------------------------
+            # 📩 2) SMS 발송
+            # ------------------------------------------
+            message = f"{visitor.name} 방문. 승인: https://pushapp.kioedu.co.kr/a/{token}"
+
+            SMS_SENDER = "01084392510"   # 메시지허브에 등록된 발신번호로 변경해야 함
+
+            sms_result = send_sms_with_msg_hub(
+                token=access_token,
+                callback=SMS_SENDER,
+                phone=professor_phonenumber,
+                text=message
+            )
+
+            print("📨 SMS 응답:", sms_result)
+
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
 
 
 from rest_framework import generics

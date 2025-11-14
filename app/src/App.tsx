@@ -18,7 +18,7 @@ function App() {
           <Route path="/" element={<MainPage />} />
 
           <Route path="/:userId" element={<GaurdPage />} />
-          <Route path="/acceptreject/:token" element={<AcceptRejectPage />} />
+          <Route path="/a/:token" element={<AcceptRejectPage />} />
           <Route path="/visitor/register" element={<VisitorPage />} />
         </Routes>
       </div>
