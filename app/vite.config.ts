@@ -20,10 +20,19 @@ export default defineConfig({
           { src: "/pwa-512x512.png", sizes: "512x512", type: "image/png" },
         ],
       },
+
+      // ⭐⭐ 여기 반드시 필요함
+      workbox: {
+        navigateFallback: "/index.html",
+        navigateFallbackDenylist: [
+          /^\/api\//, // /api 요청은 SPA 라우팅에서 제외
+          /^\/ws\//, // 웹소켓도 제외
+          /^\/media\//, // 웹소켓도 제외
+        ],
+      },
     }),
   ],
 
-  // ✅ 여기 추가!
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
