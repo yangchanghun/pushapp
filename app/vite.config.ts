@@ -28,6 +28,7 @@ export default defineConfig({
           /^\/api\//, // /api 요청은 SPA 라우팅에서 제외
           /^\/ws\//, // 웹소켓도 제외
           /^\/media\//, // 웹소켓도 제외
+          /^\/assets\//, // 웹소켓도 제외
         ],
       },
     }),
