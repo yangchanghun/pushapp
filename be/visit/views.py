@@ -16,6 +16,8 @@ import hashlib
 import base64
 import os
 import time
+import logging
+logger = logging.getLogger(__name__)
 # class VisitorCreateView(APIView):
 #     def post(self, request):
 #         serializer = VisitorSerializer(data=request.data)
@@ -124,10 +126,11 @@ class VisitorCreateView(APIView):
             try:
                 access_token = get_msg_hub_token(api_key, api_pwd)
                 print("JWT Access Token 발급 성공")
+                logger.info("JWT Access Token 발급 성공")
             except Exception as e:
                 print("❌ 인증 실패:", e)
+                logger.error(f"❌ 인증 실패: {e}")
                 return Response({"error": "인증 실패"}, status=500)
-
             # ------------------------------------------
             # 📩 2) SMS 발송
             # ------------------------------------------
@@ -143,7 +146,7 @@ class VisitorCreateView(APIView):
             )
 
             print("📨 SMS 응답:", sms_result)
-
+            logger.info(f"📨 SMS 응답: {sms_result}")
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
