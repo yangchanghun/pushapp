@@ -62,7 +62,7 @@ export default function VisitorForm() {
           hover:bg-gray-700 transition
         "
       >
-        관리자
+        관리자페이지
       </button>
       <div className="flex w-1/2 items-center justify-center">
         <form
