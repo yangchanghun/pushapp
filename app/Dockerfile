@@ -19,16 +19,14 @@
 # Node.js 환경
 FROM node:20
 
-WORKDIR /app
+WORKDIR /frontend
 
 COPY package*.json ./
 RUN npm install
 
 COPY . .
 
-# React 앱 빌드
 RUN npm run build
 
-# 🔥 dist를 컨테이너 → 호스트로 동기화되도록 유지
-#   (compose에 의해 host의 ./app/dist와 매핑됨)
-RUN cp -r dist /app/dist
+# 🔥 dist를 host에 전달하기 위해 /build 디렉토리에 복사
+RUN cp -r dist /build

@@ -97,7 +97,7 @@ services:
     #   - ./app:/app
     #   - /app/node_modules
     volumes:
-      - ./app/dist:/app/dist # 🔥 추가!!
+      - ./app/dist:/build # 🔥 build 결과물을 호스트 dist로 동기화
     depends_on:
       - backend
     command: ["npm", "run", "build"]
