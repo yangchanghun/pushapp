@@ -93,9 +93,9 @@ services:
       context: ./app
       dockerfile: Dockerfile
     working_dir: /app
-    volumes:
-      - ./app:/app
-      - /app/node_modules
+    # volumes:
+    #   - ./app:/app
+    #   - /app/node_modules
     depends_on:
       - backend
     command: ["npm", "run", "build"]
