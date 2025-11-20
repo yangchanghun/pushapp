@@ -6,8 +6,11 @@ from .models import Professors
 from .serializers import ProfessorsSerializer
 
 
-# serializer.py 생성 필요
+from rest_framework.permissions import IsAdminUser
+
 class ProfessorCreateView(APIView):
+    permission_classes = [IsAdminUser]   # ← STAFF 권한만 접근 허용!
+
     def post(self, request):
         serializer = ProfessorsSerializer(data=request.data)
         if serializer.is_valid():

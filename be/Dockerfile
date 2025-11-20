@@ -10,5 +10,7 @@ COPY . .
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt
 
+RUN python manage.py collectstatic --noinput
+
 # ✅ Daphne로 변경!
 CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "config.asgi:application"]

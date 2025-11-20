@@ -17,7 +17,7 @@ class Visitors(models.Model):
     )
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='대기')
     created_at = models.DateTimeField(auto_now_add=True)
-    is_checked = models.BooleanField(default=False)
+    is_checked = models.BooleanField(default=False) # 경비원 확인 여부
     # ✅ 토큰 추가
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
 

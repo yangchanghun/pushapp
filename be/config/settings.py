@@ -17,6 +17,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
 
+from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -38,6 +39,9 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # Application definition
+# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -53,6 +57,7 @@ INSTALLED_APPS = [
     'professors',
     'visit',
     'myapp',
+    'account',
 ]
 
 MIDDLEWARE = [
@@ -82,6 +87,22 @@ TEMPLATES = [
         },
     },
 ]
+
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+    ],
+}
+
+SIMPLE_JWT = {
+    "AUTH_COOKIE": "access",
+    "AUTH_COOKIE_SECURE": False,  # HTTPS만 사용하려면 True
+    "AUTH_COOKIE_HTTP_ONLY": True,
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+}
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
@@ -148,6 +169,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
