@@ -1,12 +1,8 @@
 import { Navigate } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useState } from "react";
-
-export default function ProtectedRoute({
-  children,
-}: {
-  children: JSX.Element;
-}) {
+import type { ReactNode } from "react";
+export default function ProtectedRoute({ children }: { children: ReactNode }) {
   const API_URL = import.meta.env.VITE_API_URL;
   const [loading, setLoading] = useState(true);
   const [allowed, setAllowed] = useState(false);
