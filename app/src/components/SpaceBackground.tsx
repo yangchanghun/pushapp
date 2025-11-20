@@ -87,9 +87,3 @@ export default function SpaceBackground() {
     />
   );
 }
-
-/*
-Umm...
-These days, If everone happend to meet neighbors, we don't greet and even make ey contact
-*/
-

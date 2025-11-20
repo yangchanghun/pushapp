@@ -51,8 +51,19 @@ export default function VisitorForm() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex relative">
       {/* ⬅️ 왼쪽 폼 */}
+      <button
+        onClick={() => (window.location.href = "/admin/login")}
+        className="
+          absolute top-5 right-5 
+          bg-gray-800 text-white px-4 py-2 
+          rounded-lg shadow-md 
+          hover:bg-gray-700 transition
+        "
+      >
+        관리자
+      </button>
       <div className="flex w-1/2 items-center justify-center">
         <form
           onSubmit={handleSubmit}

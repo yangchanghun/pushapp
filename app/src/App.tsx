@@ -7,7 +7,10 @@ import { Routes, Route } from "react-router-dom";
 import AcceptRejectPage from "./AcceptRejectPage";
 import GaurdPage from "./page/GuardPage";
 import VisitorPage from "./page/VisitorPage";
-import MainPage from "./MainPage";
+import LoginPage from "./page/LoginPage";
+import RegisterPage from "./page/RegisterPage";
+// import MainPage from "./MainPage";
+import ProtectedRoute from "./router/ProtectedRoute"; // 🔥 추가
 function App() {
   return (
     <>
@@ -15,11 +18,22 @@ function App() {
       <div>
         <SpaceBackground />
         <Routes>
-          <Route path="/" element={<MainPage />} />
+          {/* <Route path="/" element={<MainPage />} /> */}
 
-          <Route path="/:userId" element={<GaurdPage />} />
+          {/* <Route path="/:userId" element={<GaurdPage />} /> */}
+          <Route
+            path="/:userId"
+            element={
+              <ProtectedRoute>
+                <GaurdPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/a/:token" element={<AcceptRejectPage />} />
-          <Route path="/visitor/register" element={<VisitorPage />} />
+          {/* <Route path="/visitor/register" element={<VisitorPage />} /> */}
+          <Route path="/" element={<VisitorPage />} />
+          <Route path="/admin/login" element={<LoginPage />} />
+          <Route path="/admin/register" element={<RegisterPage />} />
         </Routes>
       </div>
     </>

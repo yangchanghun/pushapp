@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ChatComponent from "../components/ChatComponent";
 import CheckedChatComponent from "../components/CheckedChatComponent";
 
@@ -8,6 +8,8 @@ import useGuardSocket from "../hooks/useGuardSocket";
 
 export default function GaurdPage() {
   const { userId } = useParams();
+  const navigate = useNavigate();
+
   const apiBase = import.meta.env.VITE_API_URL;
   const apiHost = apiBase.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
@@ -28,12 +30,26 @@ export default function GaurdPage() {
     setMessages,
   });
 
+  // 🔵 로그아웃 함수
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // 토큰 삭제
+    navigate("/admin/login"); // 로그인 페이지로 이동
+  };
+
   return (
-    <div className="flex h-screen w-screen">
+    <div className="flex h-screen w-screen relative">
       {/* 왼쪽 */}
-      <div className="flex w-1/2 items-center justify-center">
+      <button
+        onClick={handleLogout}
+        className="absolute top-5 right-5 bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600"
+      >
+        로그아웃
+      </button>
+      <div className="flex w-1/2 items-center justify-center relative">
+        {/* 🔵 로그아웃 버튼 */}
+
         <div className="flex flex-col items-center justify-center w-[50%]">
-          <div className="flex flex-col  p-5 w-[400px] h-[90vh] bg-[#9bbbd4] rounded-xl shadow-lg">
+          <div className="flex flex-col p-5 w-[400px] h-[90vh] bg-[#9bbbd4] rounded-xl shadow-lg">
             <h2 className="text-center text-xl font-semibold mb-3">경비원</h2>
 
             {!soundEnabled && (
