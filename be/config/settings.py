@@ -38,6 +38,11 @@ CORS_ALLOWED_ORIGINS = [
     "https://pushapp.kioedu.co.kr"
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://pushapp.kioedu.co.kr",
+    "http://pushapp.kioedu.co.kr",
+]
+
 # Application definition
 # CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
