@@ -54,7 +54,7 @@ export default function VisitorForm() {
     <div className="min-h-screen flex relative">
       {/* ⬅️ 왼쪽 폼 */}
       <button
-        onClick={() => (window.location.href = "/admin/login")}
+        onClick={() => (window.location.href = "/admin/")}
         className="
           absolute top-5 right-5 
           bg-gray-800 text-white px-4 py-2 
