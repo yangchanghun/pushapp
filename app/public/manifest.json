@@ -1,11 +1,11 @@
 {
-  "name": "Yeomyeong808",
-  "short_name": "808",
+  "name": "pushapp",
+  "short_name": "pushapp",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",
   "theme_color": "#FFF1A7",
-  "description": "Kindergarten management services",
+  "description": "pushapp",
   "icons": [
     {
       "src": "icons/favicon.ico",
