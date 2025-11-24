@@ -53,6 +53,17 @@ export default function useGuardSocket({
       } catch (err) {
         console.error("WebSocket parse error:", err);
       }
+      if (Notification.permission === "granted") {
+        const n = new Notification("새 메시지 도착!", {
+          body: "새로운 방문자가 등록되었습니다",
+          icon: "/icon.png", // (선택) 알림 아이콘 추가 가능
+        });
+
+        n.onclick = function (event) {
+          event.preventDefault(); // 기본 동작(포커스 등) 방지
+          window.open("http://push.kioedu.co.kr/admin", "_blank");
+        };
+      }
     };
 
     return () => socket.close();
