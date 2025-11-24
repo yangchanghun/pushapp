@@ -61,7 +61,7 @@ export default function useGuardSocket({
 
         n.onclick = function (event) {
           event.preventDefault(); // 기본 동작(포커스 등) 방지
-          window.open("https://push.kioedu.co.kr/admin", "_blank");
+          window.open("https://pushapp.kioedu.co.kr/admin", "_blank");
         };
       }
     };
