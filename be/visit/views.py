@@ -134,7 +134,15 @@ class VisitorCreateView(APIView):
             # ------------------------------------------
             # 📩 2) SMS 발송
             # ------------------------------------------
-            message = f"{visitor.name} 방문. 승인: https://pushapp.kioedu.co.kr/a/{token}"
+            # message = f"{visitor.name} 방문. 승인: https://pushapp.kioedu.co.kr/a/{token}"
+            message = (
+                f"[방문자 알림]\n"
+                f"이름: {visitor.name}\n"
+                f"전화번호: {visitor.phonenumber}\n"
+                f"방문 목적: {visitor.visit_purpose}\n\n"
+                f"승인및거절: https://pushapp.kioedu.co.kr/a/{token}\n"
+            )
+
 
             SMS_SENDER = "01084392510"   # 메시지허브에 등록된 발신번호로 변경해야 함
 
