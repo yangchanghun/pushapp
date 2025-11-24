@@ -29,7 +29,9 @@ export default function useGuardSocket({
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        if (!data.message) return;
+        if (!data.message || !data.message.includes("방문")) {
+          return; // 이게 핵심!
+        }
 
         const { message, token, createdAt } = data;
         const [sender, rest] = message.split(": ");
