@@ -92,13 +92,9 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
-    working_dir: /app
-    # volumes:
-    #   - ./app:/app
-    #   - /app/node_modules
-
-    depends_on:
-      - backend
+    container_name: pushapp_frontend
+    volumes:
+      - ./app/dist:/app/dist # ⭐ dist가 host로 복사됨
     command: ["npm", "run", "build"]
     networks:
       - kioedu_network
