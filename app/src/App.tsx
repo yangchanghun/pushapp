@@ -11,6 +11,7 @@ import LoginPage from "./page/LoginPage";
 import RegisterPage from "./page/RegisterPage";
 // import MainPage from "./MainPage";
 import ProtectedRoute from "./router/ProtectedRoute"; // 🔥 추가
+import AdminPage from "./page/AdminPage";
 function App() {
   return (
     <>
@@ -26,6 +27,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <GaurdPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/page"
+            element={
+              <ProtectedRoute>
+                <AdminPage />
               </ProtectedRoute>
             }
           />

@@ -13,7 +13,11 @@ class Visitors(models.Model):
     phonenumber = models.CharField(max_length=20)
     visit_purpose = models.CharField(max_length=255)
     professor = models.ForeignKey(
-        Professors, on_delete=models.CASCADE, related_name="visitors"
+        Professors,
+        on_delete=models.SET_NULL,   # 🔥 교수 삭제해도 visitor 데이터 유지
+        null=True,                   # 🔥 SET_NULL 위해 필수
+        blank=True,
+        related_name="visitors"
     )
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='대기')
     created_at = models.DateTimeField(auto_now_add=True)

@@ -75,7 +75,7 @@ def get_msg_hub_token(api_key: str, api_pwd: str) -> str:
 # 📩 2) 메시지허브 SMS 발송 함수
 # ------------------------------------------
 def send_sms_with_msg_hub(token: str, callback: str, phone: str, text: str):
-    url = "https://api-send.msghub.uplus.co.kr/xms/sms/v1"
+    url = "https://api-send.msghub.uplus.co.kr/xms/mms/v1"
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
