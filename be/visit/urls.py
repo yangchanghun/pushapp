@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import VisitorCreateView,VisitorDetailView
+from .views import VisitorCreateView,VisitorDetailView, VisitorsListView, VisitorsExcelDownload
 
 urlpatterns = [
     path("create/", VisitorCreateView.as_view(), name="visitor-create"),
@@ -11,4 +11,6 @@ urlpatterns = [
     path("check/", views.check_visit, name="check_visit"),
     path("checked/", views.checked_visit_list, name="checked_visit_list"),
     path("no_checked/", views.no_checked_visit_list, name="no_checked_visit_list"),
+    path('list/', VisitorsListView.as_view(), name='visitors-list'),
+    path('excel/', VisitorsExcelDownload.as_view(), name='visitors-excel'),
 ]

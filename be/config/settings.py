@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',  # ✅ 이거 꼭 추가!
     'rest_framework', 
     'rest_framework_simplejwt',  
+    'django_filters',
     'channels',
     'professors',
     'visit',
@@ -115,6 +116,9 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
     ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ]
 }
 
 SIMPLE_JWT = {

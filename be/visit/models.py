@@ -25,5 +25,8 @@ class Visitors(models.Model):
     # ✅ 토큰 추가
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
 
+    is_agreed = models.BooleanField(default=False)
+    agreed_at = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
         return f"{self.name} → {self.professor.name} ({self.status})"

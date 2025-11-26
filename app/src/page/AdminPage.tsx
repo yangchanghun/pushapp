@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import RegisterProfessorModal from "../modal/RegisterProfessorModal";
 import EditProfessorModal from "../modal/EditProfessorModal";
+import { useNavigate } from "react-router-dom";
 interface Professor {
   id: number;
   name: string;
@@ -41,10 +42,19 @@ export default function AdminPage() {
 
     loadProfessors();
   };
-
+  const navigate = useNavigate();
   return (
     <div className="p-10 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">📚 담당자 관리</h1>
+      <div className="flex  items-center mb-6">
+        <h1 className="text-white text-3xl font-bold">담당자 관리</h1>
+        <button
+          onClick={() => {
+            navigate("/admin/visitors/list");
+          }}
+        >
+          방문자 관리
+        </button>
+      </div>
 
       {/* 검색 */}
       <input

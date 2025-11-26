@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import ProfessorModal from "../modal/ProfessorModal";
 import sampleImage from "@/assets/sampleImage.jpg";
+import qrcodeImage from "@/assets/qrcode.png";
 // const API_URL = "https://pushapp.kioedu.co.kr";
 // const API_URL = import.meta.env.VITE_API_URL;
 const API_URL = import.meta.env.VITE_API_URL;
 export default function VisitorForm() {
+  const [successModal, setSuccessModal] = useState(false);
   const [img, setImg] = useState<string | undefined>(sampleImage);
   const [form, setForm] = useState({
     name: "",
@@ -26,6 +28,10 @@ export default function VisitorForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.professor) {
+      setErrorMsg("교수를 선택해주세요.");
+      return;
+    }
     setLoading(true);
     setSuccessMsg("");
     setErrorMsg("");
@@ -35,6 +41,7 @@ export default function VisitorForm() {
       const { token, name } = response.data;
       setSuccessMsg(`${name}님의 방문이 등록되었습니다!`);
       console.log(`✅ Token: ${token}`, { name });
+      setSuccessModal(true);
     } catch (err: unknown) {
       console.error(err);
       setErrorMsg("방문자 등록 중 오류가 발생했습니다.");
@@ -51,20 +58,31 @@ export default function VisitorForm() {
   };
 
   return (
-    <div className="min-h-screen flex relative">
+    // <div className="min-h-screen flex relative">
+    <div className="min-h-screen flex flex-col md:flex-row relative">
+      <img
+        src={qrcodeImage}
+        className="
+    hidden md:block               <!-- ⭐ 모바일 숨김 -->
+    absolute top-5 left w-24 h-24
+    bg-white p-2 rounded-lg shadow-lg
+  "
+      />
       {/* ⬅️ 왼쪽 폼 */}
-      <button
+      {/* <button
         onClick={() => (window.location.href = "/admin/")}
         className="
-          absolute top-5 right-5 
-          bg-gray-800 text-white px-4 py-2 
-          rounded-lg shadow-md 
-          hover:bg-gray-700 transition
-        "
+    hidden md:block               <!-- ⭐ 모바일 숨김 -->
+    absolute top-5 right-5 
+    bg-gray-800 text-white px-4 py-2 
+    rounded-lg shadow-md 
+    hover:bg-gray-700 transition
+  "
       >
         관리자페이지
-      </button>
-      <div className="flex w-1/2 items-center justify-center">
+      </button> */}
+      {/* <div className="flex w-1/2 items-center justify-center"> */}
+      <div className="flex md:w-1/2 w-full items-center justify-center">
         <form
           onSubmit={handleSubmit}
           className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-md mx-auto"
@@ -137,7 +155,8 @@ export default function VisitorForm() {
       </div>
 
       {/* ➡️ 오른쪽 이미지 (꽉 차게, 비율 유지) */}
-      <div className="w-1/2 h-screen bg-black flex items-center justify-center">
+      {/* <div className="w-1/2 h-screen bg-black flex items-center justify-center"> */}
+      <div className="md:w-1/2 w-full h-[50vh] md:h-screen bg-black flex items-center justify-center">
         {img ? (
           <img
             src={img}
@@ -162,6 +181,59 @@ export default function VisitorForm() {
           }}
         />
       )}
+      {successModal && (
+        <SuccessModal
+          onClose={() => setSuccessModal(false)}
+          message={successMsg}
+        />
+      )}
     </div>
   );
 }
+interface SuccessModalProps {
+  onClose: () => void;
+  message: string;
+  duration?: number; // 자동 닫힘 시간(ms)
+}
+
+const SuccessModal = ({
+  onClose,
+  message,
+  duration = 3000,
+}: SuccessModalProps) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, duration);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div
+      className="
+        fixed inset-0 bg-black/40 backdrop-blur-sm
+        flex items-center justify-center z-50
+      "
+    >
+      <div
+        className="
+          bg-white w-80 p-6 rounded-2xl shadow-2xl
+          animate-[zoomIn_0.2s_ease-out]
+        "
+      >
+        <h2 className="text-center text-2xl font-bold text-green-600 mb-3">
+          등록 완료!
+        </h2>
+
+        <p className="text-center text-gray-700 mb-2 whitespace-pre-line">
+          {message}
+        </p>
+
+        <p className="text-center text-gray-400 text-sm">
+          잠시 후 자동으로 닫힙니다...
+        </p>
+      </div>
+    </div>
+  );
+};

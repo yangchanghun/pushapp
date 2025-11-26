@@ -348,3 +348,99 @@ def no_checked_visit_list(request):
   }
 ]
 """
+
+
+# visitors/pagination.py
+from rest_framework.pagination import PageNumberPagination
+
+class VisitorsPagination(PageNumberPagination):
+    page_size = 20  # 기본 20개
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
+from rest_framework import generics, filters
+from django_filters.rest_framework import DjangoFilterBackend
+from .models import Visitors
+from .serializers import VisitorsSerializers
+
+
+class VisitorsListView(generics.ListAPIView):
+    queryset = Visitors.objects.select_related('professor').order_by('-id')
+    serializer_class = VisitorsSerializers
+    pagination_class = VisitorsPagination
+
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['status', 'is_checked', 'professor']  # 정확한 필터
+    search_fields = ['name', 'phonenumber', 'visit_purpose', 'professor__name']  # 부분 검색
+
+
+
+# visitors/views.py
+import openpyxl
+from openpyxl.styles import Alignment, Font
+from django.http import HttpResponse
+from rest_framework.views import APIView
+from .models import Visitors
+from django.db import models
+class VisitorsExcelDownload(APIView):
+    def get(self, request):
+        # 🔥 필터 적용 (list API와 동일하게 필터링)
+        queryset = Visitors.objects.select_related('professor').order_by('-id')
+
+        # 검색 적용
+        search = request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                models.Q(name__icontains=search)
+                | models.Q(phonenumber__icontains=search)
+                | models.Q(visit_purpose__icontains=search)
+                | models.Q(professor__name__icontains=search)
+            )
+
+        # 상태 필터
+        status = request.GET.get('status')
+        if status:
+            queryset = queryset.filter(status=status)
+
+        # ------ 엑셀 생성 ------
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Visitors"
+
+        headers = [
+            "ID",
+            "이름",
+            "전화번호",
+            "방문 목적",
+            "상태",
+            "생성 날짜",
+            "경비원 체크 여부",
+            "담당 교수",
+        ]
+        ws.append(headers)
+
+        for row in queryset:
+            ws.append([
+                row.id,
+                row.name,
+                row.phonenumber,
+                row.visit_purpose,
+                row.status,
+                row.created_at.strftime("%Y-%m-%d %H:%M"),
+                "예" if row.is_checked else "아니오",
+                row.professor.name if row.professor else "-",
+            ])
+
+        # 파일 스타일 예쁘게
+        for col in ws.columns:
+            for cell in col:
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+                cell.font = Font(size=12)
+
+        # 다운로드 응답
+        response = HttpResponse(content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment; filename=visitors.xlsx'
+
+        wb.save(response)
+        return response

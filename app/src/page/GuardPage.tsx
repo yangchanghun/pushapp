@@ -47,7 +47,7 @@ export default function GaurdPage() {
     <div className="flex h-screen w-screen relative">
       <button
         onClick={() => {
-          navigate("/admin/page");
+          navigate("/admin/visitors/list");
         }}
         className="z-50 absolute top-5 left-5 bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600"
       >
