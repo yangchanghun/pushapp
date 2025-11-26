@@ -385,7 +385,6 @@ from .models import Visitors
 from django.db import models
 class VisitorsExcelDownload(APIView):
     def get(self, request):
-        # 🔥 필터 적용 (list API와 동일하게 필터링)
         queryset = Visitors.objects.select_related('professor').order_by('-id')
 
         # 검색 적용
@@ -398,10 +397,17 @@ class VisitorsExcelDownload(APIView):
                 | models.Q(professor__name__icontains=search)
             )
 
-        # 상태 필터
+        # 상태 필터 적용
         status = request.GET.get('status')
         if status:
             queryset = queryset.filter(status=status)
+
+        # 🔥 페이지네이션 적용
+        page = int(request.GET.get('page', 1))
+        page_size = 20
+        start = (page - 1) * page_size
+        end = start + page_size
+        queryset = queryset[start:end]
 
         # ------ 엑셀 생성 ------
         wb = openpyxl.Workbook()
@@ -409,14 +415,8 @@ class VisitorsExcelDownload(APIView):
         ws.title = "Visitors"
 
         headers = [
-            "ID",
-            "이름",
-            "전화번호",
-            "방문 목적",
-            "상태",
-            "생성 날짜",
-            "경비원 체크 여부",
-            "담당 교수",
+            "ID", "이름", "전화번호", "방문 목적",
+            "상태", "생성 날짜", "경비원 체크 여부", "담당 교수",
         ]
         ws.append(headers)
 
@@ -432,15 +432,14 @@ class VisitorsExcelDownload(APIView):
                 row.professor.name if row.professor else "-",
             ])
 
-        # 파일 스타일 예쁘게
+        # 스타일
         for col in ws.columns:
             for cell in col:
                 cell.alignment = Alignment(horizontal="center", vertical="center")
                 cell.font = Font(size=12)
 
-        # 다운로드 응답
+        # HTTP 응답
         response = HttpResponse(content_type='application/vnd.ms-excel')
         response['Content-Disposition'] = 'attachment; filename=visitors.xlsx'
-
         wb.save(response)
         return response

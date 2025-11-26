@@ -10,10 +10,9 @@ export default function AdminVisitorListPage() {
 
   const { data, count, loading } = useVisitors(search, status, page);
 
-  // 🔥 엑셀 다운로드 URL
   const excelURL = `${
     import.meta.env.VITE_API_URL
-  }/api/visit/excel/?search=${search}&status=${status}`;
+  }/api/visit/excel/?search=${search}&status=${status}&page=${page}`;
   const navigate = useNavigate();
 
   return (
