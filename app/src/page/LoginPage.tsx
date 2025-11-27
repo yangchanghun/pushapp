@@ -3,7 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
-  const apiBase = import.meta.env.VITE_API_URL;
+  const apiBase = "https://pushapp.kioedu.co.kr";
+  // const apiBase = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
 
   const [form, setForm] = useState({

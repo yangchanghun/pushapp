@@ -74,7 +74,7 @@ export default function AdminVisitorListPage() {
               <th className="p-3 border">상태</th>
               <th className="p-3 border">생성 날짜</th>
               <th className="p-3 border">체크 여부</th>
-              <th className="p-3 border">담당 교수</th>
+              <th className="p-3 border">담당자</th>
             </tr>
           </thead>
 

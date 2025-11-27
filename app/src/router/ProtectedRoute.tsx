@@ -3,7 +3,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 export default function ProtectedRoute({ children }: { children: ReactNode }) {
-  const API_URL = import.meta.env.VITE_API_URL;
+  // const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = "https://pushapp.kioedu.co.kr";
   const [loading, setLoading] = useState(true);
   const [allowed, setAllowed] = useState(false);
 

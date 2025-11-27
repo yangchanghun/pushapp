@@ -306,32 +306,60 @@ def check_visit(request):
         return Response({"error": "해당 방문자가 존재하지 않습니다."}, status=404)
     
 
+
+class VisitorPagination(PageNumberPagination):
+    page_size = 20            # 기본 20개씩
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+# @api_view(["GET"])
+# def checked_visit_list(request):
+#     """
+#     ✅ 교수가 수락 or 거절버튼을 누르고, 경비원이 확인한 방문자 목록
+#     """
+#     visits = Visitors.objects.filter(
+#         Q(is_checked=True),
+#         Q(status="수락") | Q(status="거절")
+#     )#.order_by("-created_at")
+
+#     serializer = VisitorsSerializers(visits, many=True)
+#     return Response(serializer.data)
+
+
+# @api_view(["GET"])
+# def no_checked_visit_list(request):
+#     """
+#     🚫 교수가 수락 or 거절버튼을 누르고 , 경비원이 확인 하지 않은 방문자 목록
+#     """
+#     visits = Visitors.objects.filter(
+#         Q(is_checked=False),
+#         Q(status="수락") | Q(status = "거절")   # ✅ 교수가 응답함
+#     )#.order_by("-created_at")
+
+#     serializer = VisitorsSerializers(visits, many=True)
+#     return Response(serializer.data)
 @api_view(["GET"])
 def checked_visit_list(request):
-    """
-    ✅ 교수가 수락 or 거절버튼을 누르고, 경비원이 확인한 방문자 목록
-    """
-    visits = Visitors.objects.filter(
-        Q(is_checked=True),
-        Q(status="수락") | Q(status="거절")
-    )#.order_by("-created_at")
+    visits = (
+        Visitors.objects.filter(
+            Q(is_checked=True),
+            Q(status="수락") | Q(status="거절")
+        )
+        .order_by("-created_at")[:100]   # 🔥 최대 100개만
+    )
 
     serializer = VisitorsSerializers(visits, many=True)
-    return Response(serializer.data)
-
+    return Response(serializer.data, status=200)
 
 @api_view(["GET"])
 def no_checked_visit_list(request):
-    """
-    🚫 교수가 수락 or 거절버튼을 누르고 , 경비원이 확인 하지 않은 방문자 목록
-    """
-    visits = Visitors.objects.filter(
-        Q(is_checked=False),
-        Q(status="수락") | Q(status = "거절")   # ✅ 교수가 응답함
-    )#.order_by("-created_at")
+    visits = (
+        Visitors.objects.filter(is_checked=False)
+        .order_by("-created_at")[:100]  # 🔥 최대 100개만
+    )
 
     serializer = VisitorsSerializers(visits, many=True)
-    return Response(serializer.data)
+    return Response(serializer.data, status=200)
 
 """
 [
@@ -416,7 +444,7 @@ class VisitorsExcelDownload(APIView):
 
         headers = [
             "ID", "이름", "전화번호", "방문 목적",
-            "상태", "생성 날짜", "경비원 체크 여부", "담당 교수",
+            "상태", "생성 날짜", "경비원 체크 여부", "담당자",
         ]
         ws.append(headers)
 

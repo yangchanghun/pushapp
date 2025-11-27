@@ -10,7 +10,8 @@ export default function GaurdPage() {
   const { userId } = useParams();
   const navigate = useNavigate();
 
-  const apiBase = import.meta.env.VITE_API_URL;
+  // const apiBase = import.meta.env.VITE_API_URL;
+  const apiBase = "https://pushapp.kioedu.co.kr";
   const apiHost = apiBase.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
 
