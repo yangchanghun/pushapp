@@ -18,6 +18,8 @@ import os
 import time
 import logging
 logger = logging.getLogger(__name__)
+# visitors/pagination.py
+from rest_framework.pagination import PageNumberPagination
 # class VisitorCreateView(APIView):
 #     def post(self, request):
 #         serializer = VisitorSerializer(data=request.data)
@@ -307,10 +309,6 @@ def check_visit(request):
     
 
 
-class VisitorPagination(PageNumberPagination):
-    page_size = 20            # 기본 20개씩
-    page_size_query_param = 'page_size'
-    max_page_size = 100
 
 # @api_view(["GET"])
 # def checked_visit_list(request):
@@ -378,8 +376,7 @@ def no_checked_visit_list(request):
 """
 
 
-# visitors/pagination.py
-from rest_framework.pagination import PageNumberPagination
+
 
 class VisitorsPagination(PageNumberPagination):
     page_size = 20  # 기본 20개
