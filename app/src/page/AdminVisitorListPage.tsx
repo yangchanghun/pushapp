@@ -1,34 +1,50 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useVisitors } from "../hooks/useVisitors";
 import Pagination from "../components/Pagination";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function AdminVisitorListPage() {
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("");
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
+  // URL에서 값 읽기
+  let initialPage = Number(searchParams.get("page")) || 1;
+  const initialSearch = searchParams.get("search") || "";
+  const initialStatus = searchParams.get("status") || "";
+  if (!initialPage || isNaN(initialPage) || initialPage < 1) {
+    initialPage = 1;
+  }
+  const [search, setSearch] = useState(initialSearch);
+  const [status, setStatus] = useState(initialStatus);
+  const [page, setPage] = useState(initialPage);
+
+  useEffect(() => {
+    const params: Record<string, string> = {};
+
+    if (page > 1) params.page = String(page);
+    if (search) params.search = search;
+    if (status) params.status = status;
+
+    setSearchParams(params);
+  }, [page, search, status, setSearchParams]);
+
+  // 데이터 가져오기
   const { data, count, loading } = useVisitors(search, status, page);
 
   const excelURL = `${
     import.meta.env.VITE_API_URL
   }/api/visit/excel/?search=${search}&status=${status}&page=${page}`;
-  const navigate = useNavigate();
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
-      <div className="flex  items-center mb-6">
-        <h1 className="text-white text-3xl font-bold ">방문자 관리</h1>
-        <button
-          onClick={() => {
-            navigate("/admin/professors/list");
-          }}
-        >
+      <div className="flex items-center mb-6">
+        <h1 className="text-white text-3xl font-bold">방문자 관리</h1>
+        <button onClick={() => navigate("/admin/professors/list")}>
           담당자 관리
         </button>
       </div>
 
-      {/* 검색 및 필터 */}
+      {/* 검색 / 필터 */}
       <div className="flex items-center gap-4 mb-6">
         <input
           type="text"
@@ -55,7 +71,6 @@ export default function AdminVisitorListPage() {
           <option value="거절">거절</option>
         </select>
 
-        {/* Excel 버튼 */}
         <a href={excelURL} download>
           <button className="bg-green-500 text-white px-4 py-2 rounded">
             엑셀 다운로드

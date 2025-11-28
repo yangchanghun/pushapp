@@ -26,7 +26,8 @@ export function useVisitors(search: string, status: string, page: number) {
       });
 
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/visit/list/?${params}`
+        `https://pushapp.kioedu.co.kr/api/visit/list/?${params}`
+        // `${import.meta.env.VITE_API_URL}/api/visit/list/?${params}`
       );
 
       const json = await res.json();
