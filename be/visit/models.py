@@ -27,6 +27,7 @@ class Visitors(models.Model):
 
     is_agreed = models.BooleanField(default=False)
     agreed_at = models.DateTimeField(null=True, blank=True)
-
+    
     def __str__(self):
-        return f"{self.name} → {self.professor.name} ({self.status})"
+        prof_name = self.professor.name if self.professor else "담당자 없음"
+        return f"{self.name} → {prof_name} ({self.status})"
