@@ -75,11 +75,17 @@ INSTALLED_APPS = [
     'rest_framework', 
     'rest_framework_simplejwt',  
     'django_filters',
+    'django-crontab'
     'channels',
     'professors',
     'visit',
     'myapp',
     'account',
+]
+
+CRONJOBS = [
+    # ('0 3 * * *', 'visit.cron.delete_expired_visitors'),
+    ('*/5 * * * *', 'visit.cron.delete_expired_visitors'),
 ]
 
 MIDDLEWARE = [

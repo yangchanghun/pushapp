@@ -50,3 +50,4 @@ urllib3==2.5.0
 yarl==1.22.0
 zope.interface==8.0.1
 django-filter==24.2
+django-crontab
