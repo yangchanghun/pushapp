@@ -75,7 +75,7 @@ INSTALLED_APPS = [
     'rest_framework', 
     'rest_framework_simplejwt',  
     'django_filters',
-    'django-crontab'
+    'django-crontab',
     'channels',
     'professors',
     'visit',
