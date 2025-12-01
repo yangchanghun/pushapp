@@ -19,7 +19,13 @@ export default function RegisterProfessorModal({ onClose, onSuccess }: Props) {
   const [file, setFile] = useState<File | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    // 🔥 전화번호는 숫자만 허용
+    const newValue =
+      name === "phonenumber" ? value.replace(/[^0-9]/g, "") : value;
+
+    setForm({ ...form, [name]: newValue });
   };
 
   const handleSubmit = async () => {

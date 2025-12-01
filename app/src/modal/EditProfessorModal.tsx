@@ -76,9 +76,10 @@ export default function EditProfessorModal({ id, onClose, onSuccess }: Props) {
             type="text"
             name="phonenumber"
             value={form.phonenumber}
-            onChange={(e) =>
-              setForm({ ...form, [e.target.name]: e.target.value })
-            }
+            onChange={(e) => {
+              const onlyNum = e.target.value.replace(/[^0-9]/g, "");
+              setForm({ ...form, phonenumber: onlyNum });
+            }}
             className="border rounded p-2"
             placeholder="전화번호"
           />

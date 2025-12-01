@@ -23,7 +23,16 @@ export default function VisitorForm() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name: fieldName, value: rawValue } = e.target;
+
+    let value = rawValue;
+
+    // 🔥 전화번호만 숫자만 허용
+    if (fieldName === "phonenumber") {
+      value = value.replace(/[^0-9]/g, "");
+    }
+
+    setForm({ ...form, [fieldName]: value });
   };
 
   // const [agree, setAgree] = useState(false);
