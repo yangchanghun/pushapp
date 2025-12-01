@@ -3,9 +3,9 @@ import axios from "axios";
 import ProfessorModal from "../modal/ProfessorModal";
 import sampleImage from "@/assets/sampleImage.jpg";
 import qrcodeImage from "@/assets/qrcode.png";
-// const API_URL = "https://pushapp.kioedu.co.kr";
+const API_URL = "https://pushapp.kioedu.co.kr";
 // const API_URL = import.meta.env.VITE_API_URL;
-const API_URL = import.meta.env.VITE_API_URL;
+
 export default function VisitorForm() {
   const [successModal, setSuccessModal] = useState(false);
   const [img, setImg] = useState<string | undefined>(sampleImage);
@@ -26,27 +26,73 @@ export default function VisitorForm() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // const [agree, setAgree] = useState(false);
+
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!form.professor) {
+  //     setErrorMsg("교수를 선택해주세요.");
+  //     return;
+  //   }
+  //   setLoading(true);
+  //   setSuccessMsg("");
+  //   setErrorMsg("");
+
+  //   try {
+  //     const response = await axios.post(`${API_URL}/api/visit/create/`, form);
+  //     const { token, name } = response.data;
+  //     setSuccessMsg(`${name}님의 방문이 등록되었습니다!`);
+  //     console.log(`✅ Token: ${token}`, { name });
+  //     setSuccessModal(true);
+  //   } catch (err: unknown) {
+  //     console.error(err);
+  //     setErrorMsg("방문자 등록 중 오류가 발생했습니다.");
+  //   } finally {
+  //     setLoading(false);
+  //     setProfessorName("");
+  //     setForm({
+  //       name: "",
+  //       phonenumber: "",
+  //       visit_purpose: "",
+  //       professor: "",
+  //     });
+  //   }
+  // };
+
+  const [agreeModal, setAgreeModal] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!form.professor) {
       setErrorMsg("교수를 선택해주세요.");
       return;
     }
+    // 🔥 서버요청 금지, 동의 모달 열기
+    setAgreeModal(true);
+  };
+
+  const submitWithAgreement = async () => {
     setLoading(true);
     setSuccessMsg("");
     setErrorMsg("");
 
     try {
-      const response = await axios.post(`${API_URL}/api/visit/create/`, form);
+      const response = await axios.post(`${API_URL}/api/visit/create/`, {
+        ...form,
+        is_agreed: true,
+      });
+
       const { token, name } = response.data;
       setSuccessMsg(`${name}님의 방문이 등록되었습니다!`);
-      console.log(`✅ Token: ${token}`, { name });
       setSuccessModal(true);
-    } catch (err: unknown) {
+      console.log(`🟢 Token: ${token}`);
+    } catch (err) {
       console.error(err);
       setErrorMsg("방문자 등록 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
+      setAgreeModal(false);
       setProfessorName("");
       setForm({
         name: "",
@@ -187,6 +233,13 @@ export default function VisitorForm() {
           message={successMsg}
         />
       )}
+
+      {agreeModal && (
+        <AgreeModal
+          onClose={() => setAgreeModal(false)}
+          onAgree={submitWithAgreement}
+        />
+      )}
     </div>
   );
 }
@@ -233,6 +286,66 @@ const SuccessModal = ({
         <p className="text-center text-gray-400 text-sm">
           잠시 후 자동으로 닫힙니다...
         </p>
+      </div>
+    </div>
+  );
+};
+
+const AgreeModal = ({
+  onClose,
+  onAgree,
+}: {
+  onClose: () => void;
+  onAgree: () => void;
+}) => {
+  const [checked, setChecked] = useState(false);
+
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white p-6 w-96 rounded-2xl shadow-xl">
+        <h2 className="text-xl font-bold mb-4 text-center">
+          개인정보 처리 동의
+        </h2>
+
+        <div className="text-gray-700 text-sm mb-4 h-40 overflow-auto border p-3 rounded">
+          방문자 등록을 위해 이름, 전화번호, 방문목적, 담당교수 정보가
+          수집됩니다. 해당 정보는 방문 확인 및 보안 절차를 위해 사용됩니다.
+          방문자 등록을 위해 이름, 전화번호, 방문목적, 담당교수 정보가
+          수집됩니다. 해당 정보는 방문 확인 및 보안 절차를 위해 사용됩니다.
+          방문자 등록을 위해 이름, 전화번호, 방문목적, 담당교수 정보가
+          수집됩니다. 해당 정보는 방문 확인 및 보안 절차를 위해 사용됩니다.
+          방문자 등록을 위해 이름, 전화번호, 방문목적, 담당교수 정보가
+          수집됩니다. 해당 정보는 방문 확인 및 보안 절차를 위해 사용됩니다.
+        </div>
+
+        <label className="flex items-center gap-2 mb-4">
+          <input
+            type="checkbox"
+            checked={checked}
+            onChange={() => setChecked(!checked)}
+            className="w-5 h-5"
+          />
+          <span className="text-gray-700 text-sm">
+            개인정보 처리에 동의합니다.
+          </span>
+        </label>
+
+        <button
+          disabled={!checked}
+          onClick={onAgree}
+          className={`w-full py-3 rounded-lg font-bold text-white transition ${
+            checked ? "bg-green-500 hover:bg-green-600" : "bg-gray-400"
+          }`}
+        >
+          동의하고 제출하기
+        </button>
+
+        <button
+          onClick={onClose}
+          className="mt-3 w-full py-2 text-gray-500 hover:text-gray-700 text-sm"
+        >
+          취소
+        </button>
       </div>
     </div>
   );
