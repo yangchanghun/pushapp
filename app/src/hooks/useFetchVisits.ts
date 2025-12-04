@@ -20,6 +20,7 @@ export default function useFetchVisits(apiBase: string) {
           text: `을 ${item.status}했습니다.`,
           token: item.token,
           createdAt: item.created_at,
+          carNumber: item.car_number,
         }))
       );
     }
@@ -40,6 +41,7 @@ export default function useFetchVisits(apiBase: string) {
           text: `을 ${item.status}했습니다.`,
           token: item.token,
           createdAt: item.created_at,
+          carNumber: item.car_number,
         }))
       );
     }

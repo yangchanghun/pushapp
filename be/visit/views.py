@@ -140,6 +140,7 @@ class VisitorCreateView(APIView):
                 f"이름: {visitor.name}\n"
                 f"전화번호: {visitor.phonenumber}\n"
                 f"방문 목적: {visitor.visit_purpose}\n\n"
+                f"회사명: {visitor.company_name}\n\n"
                 f"승인및거절: https://pushapp.kioedu.co.kr/a/{token}\n"
             )
 

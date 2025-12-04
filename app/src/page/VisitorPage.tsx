@@ -265,16 +265,15 @@ export default function VisitorForm() {
               <option value="면담">면담</option>
               <option value="기타">기타</option>
             </select>
+            <input
+              name="company_name"
+              value={form.company_name}
+              onChange={handleChange}
+              placeholder="회사명"
+              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
+              required
+            />
           </div>
-
-          <input
-            name="company_name"
-            value={form.company_name}
-            onChange={handleChange}
-            placeholder="회사명"
-            className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-            required
-          />
 
           {/* 교수 찾기 */}
           <div className="mt-6 flex items-center gap-3">

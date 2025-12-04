@@ -32,7 +32,8 @@ export default function AdminVisitorListPage() {
   const { data, count, loading } = useVisitors(search, status, page);
 
   const excelURL = `${
-    import.meta.env.VITE_API_URL
+    // import.meta.env.VITE_API_URL
+    "https://pushapp.kioedu.co.kr"
   }/api/visit/excel/?search=${search}&status=${status}&page=${page}`;
 
   return (
@@ -89,6 +90,9 @@ export default function AdminVisitorListPage() {
               <th className="p-3 border">상태</th>
               <th className="p-3 border">생성 날짜</th>
               <th className="p-3 border">체크 여부</th>
+              <th className="p-3 border">회사명</th>
+              <th className="p-3 border">생년월일</th>
+              <th className="p-3 border">차량번호</th>
               <th className="p-3 border">담당자</th>
             </tr>
           </thead>
@@ -123,6 +127,9 @@ export default function AdminVisitorListPage() {
                   <td className="p-3 border">
                     {v.is_checked ? "✔ 체크됨" : "❌ 미체크"}
                   </td>
+                  <td className="p-3 border">{v.company_name}</td>
+                  <td className="p-3 border">{v.birthdate}</td>
+                  <td className="p-3 border">{v.car_number}</td>
                   <td className="p-3 border">{v.professor_name}</td>
                 </tr>
               ))}

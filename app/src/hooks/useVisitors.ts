@@ -9,13 +9,16 @@ export interface Visitor {
   created_at: string;
   is_checked: boolean;
   professor_name: string;
+  car_number: string;
+  company_name: string;
+  birthdate: string;
 }
 
 export function useVisitors(search: string, status: string, page: number) {
   const [data, setData] = useState<Visitor[]>([]);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
-
+  console.log(data);
   useEffect(() => {
     const fetchVisitors = async () => {
       setLoading(true);

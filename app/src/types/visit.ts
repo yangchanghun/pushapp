@@ -4,4 +4,5 @@ export type VisitResponse = {
   status: string;
   token: string;
   created_at: string;
+  car_number: string;
 };

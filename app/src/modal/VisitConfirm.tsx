@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import type { Message } from "../types/messages";
-// const API_URL = "https://pushapp.kioedu.co.kr";
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = "https://pushapp.kioedu.co.kr";
+// const API_URL = import.meta.env.VITE_API_URL;
 
 interface Visitor {
   name: string;
@@ -12,6 +12,9 @@ interface Visitor {
   created_at: string;
   professor_name?: string;
   token: string;
+  car_number: string;
+  birthdate: string;
+  company_name: string;
 }
 
 interface VisitorDetailModalProps {
@@ -30,7 +33,6 @@ export default function VisitorDetailModal({
   const [visitor, setVisitor] = useState<Visitor | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-
   // ✅ 방문자 상세조회
   useEffect(() => {
     axios
@@ -46,7 +48,6 @@ export default function VisitorDetailModal({
       setSubmitting(true);
       const res = await axios.post(`${API_URL}/api/visit/check/`, { token });
       alert(res.data.message || "확인 완료!");
-
       // ✅ 왼쪽(no_checked)에서 제거
       setMessages((prev) => prev.filter((msg) => msg.token !== token));
 
@@ -102,7 +103,19 @@ export default function VisitorDetailModal({
             <strong>상태:</strong> {visitor.status}
           </p>
           <p>
-            <strong>등록일:</strong>{" "}
+            <strong>차량번호:</strong> {visitor.car_number}
+          </p>
+          <p>
+            <strong>회사명:</strong> {visitor.company_name}
+          </p>
+          <p>
+            <strong>생년월일:</strong> {visitor.birthdate}
+          </p>
+          <p>
+            <strong>담당자명:</strong> {visitor.professor_name}
+          </p>
+          <p>
+            <strong>방문일시:</strong>{" "}
             {new Date(visitor.created_at).toLocaleString()}
           </p>
         </div>
