@@ -143,7 +143,7 @@ class VisitorCreateView(APIView):
                 f"승인및거절: https://pushapp.kioedu.co.kr/a/{token}\n"
             )
 
-
+            # 한국기계연구원 발신번호: 042-868-7791
             SMS_SENDER = "01084392510"   # 메시지허브에 등록된 발신번호로 변경해야 함
 
             sms_result = send_sms_with_msg_hub(
@@ -417,6 +417,7 @@ class VisitorsExcelDownload(APIView):
         headers = [
             "ID", "이름", "전화번호", "방문 목적",
             "상태", "생성 날짜", "경비원 체크 여부", "담당자",
+            "생년월일", "차량번호", "회사명"
         ]
         ws.append(headers)
 
@@ -430,6 +431,9 @@ class VisitorsExcelDownload(APIView):
                 row.created_at.strftime("%Y-%m-%d %H:%M"),
                 "예" if row.is_checked else "아니오",
                 row.professor.name if row.professor else "-",
+                row.birthdate.strftime("%Y-%m-%d") if row.birthdate else "",
+                row.car_number or "",
+                row.company_name or "",
             ])
 
         # 스타일

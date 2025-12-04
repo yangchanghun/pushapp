@@ -28,6 +28,10 @@ class Visitors(models.Model):
     is_agreed = models.BooleanField(default=False)
     # agreed_at = models.DateTimeField(null=True, blank=True)
     
+    company_name = models.CharField(max_length=100, null=True, blank=True)
+    birthdate = models.DateField(null=True, blank=True)
+    car_number = models.CharField(max_length=20, null=True, blank=True)
+
     def __str__(self):
         prof_name = self.professor.name if self.professor else "담당자 없음"
         return f"{self.name} → {prof_name} ({self.status})"

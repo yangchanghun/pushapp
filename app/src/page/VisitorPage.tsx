@@ -9,11 +9,22 @@ const API_URL = "https://pushapp.kioedu.co.kr";
 export default function VisitorForm() {
   const [successModal, setSuccessModal] = useState(false);
   const [img, setImg] = useState<string | undefined>(sampleImage);
+  // const [form, setForm] = useState({
+  //   name: "",
+  //   phonenumber: "",
+  //   visit_purpose: "",
+  //   professor: "",
+  // });
   const [form, setForm] = useState({
     name: "",
     phonenumber: "",
     visit_purpose: "",
     professor: "",
+    birth_year: "",
+    birth_month: "",
+    birth_day: "",
+    car_number: "",
+    company_name: "",
   });
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
@@ -87,9 +98,15 @@ export default function VisitorForm() {
     setErrorMsg("");
 
     try {
+      const birthdate = `${form.birth_year}-${String(form.birth_month).padStart(
+        2,
+        "0"
+      )}-${String(form.birth_day).padStart(2, "0")}`;
+
       const response = await axios.post(`${API_URL}/api/visit/create/`, {
         ...form,
         is_agreed: true,
+        birthdate, // 🔥 합친 날짜 전송
       });
 
       const { token, name } = response.data;
@@ -108,6 +125,11 @@ export default function VisitorForm() {
         phonenumber: "",
         visit_purpose: "",
         professor: "",
+        birth_year: "",
+        birth_month: "",
+        birth_day: "",
+        car_number: "",
+        company_name: "",
       });
     }
   };
@@ -157,6 +179,8 @@ export default function VisitorForm() {
               required
             />
             <input
+              type="tel"
+              inputMode="numeric"
               name="phonenumber"
               value={form.phonenumber}
               onChange={handleChange}
@@ -164,15 +188,93 @@ export default function VisitorForm() {
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
               required
             />
+            <div className="flex items-center gap-2">
+              {/* Year */}
+              <span className="whitespace-nowrap font-medium">생년월일:</span>
+              <select
+                name="birth_year"
+                value={form.birth_year}
+                onChange={handleChange}
+                className="w-1/3 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 bg-white"
+                required
+              >
+                <option value="" disabled>
+                  연도
+                </option>
+                {Array.from({ length: 100 }, (_, i) => 2025 - i).map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+              {/* Month */}
+              <select
+                name="birth_month"
+                value={form.birth_month}
+                onChange={handleChange}
+                className="w-1/3 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 bg-white"
+                required
+              >
+                <option value="" disabled>
+                  월
+                </option>
+                {[...Array(12)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </option>
+                ))}
+              </select>
+              {/* Day */}
+              <select
+                name="birth_day"
+                value={form.birth_day}
+                onChange={handleChange}
+                className="w-1/3 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 bg-white"
+                required
+              >
+                <option value="" disabled>
+                  일
+                </option>
+                {[...Array(31)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </option>
+                ))}
+              </select>
+            </div>
             <input
-              name="visit_purpose"
-              value={form.visit_purpose}
+              name="car_number"
+              value={form.car_number}
               onChange={handleChange}
-              placeholder="방문 목적"
+              placeholder="차량번호"
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
               required
             />
+            <select
+              name="visit_purpose"
+              value={form.visit_purpose}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 bg-white"
+              required
+            >
+              <option value="" disabled>
+                방문 목적을 선택해주세요
+              </option>
+
+              <option value="상담">상담</option>
+              <option value="면담">면담</option>
+              <option value="기타">기타</option>
+            </select>
           </div>
+
+          <input
+            name="company_name"
+            value={form.company_name}
+            onChange={handleChange}
+            placeholder="회사명"
+            className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
+            required
+          />
 
           {/* 교수 찾기 */}
           <div className="mt-6 flex items-center gap-3">
