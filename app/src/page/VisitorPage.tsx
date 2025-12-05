@@ -3,6 +3,7 @@ import axios from "axios";
 import ProfessorModal from "../modal/ProfessorModal";
 import sampleImage from "@/assets/sampleImage.jpg";
 import qrcodeImage from "@/assets/qrcode.png";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 const API_URL = "https://pushapp.kioedu.co.kr";
 // const API_URL = import.meta.env.VITE_API_URL;
 
@@ -45,7 +46,7 @@ export default function VisitorForm() {
 
     setForm({ ...form, [fieldName]: value });
   };
-
+  const [showImageModal, setShowImageModal] = useState(false);
   // const [agree, setAgree] = useState(false);
 
   // const handleSubmit = async (e: React.FormEvent) => {
@@ -314,11 +315,21 @@ export default function VisitorForm() {
       {/* <div className="w-1/2 h-screen bg-black flex items-center justify-center"> */}
       <div className="md:w-1/2 w-full h-[50vh] md:h-screen bg-black flex items-center justify-center">
         {img ? (
-          <img
-            src={img}
-            alt="교수 위치 안내 이미지"
-            className="w-full object-contain bg-black"
-          />
+          <>
+            <img
+              src={img}
+              alt="교수 위치 안내 이미지"
+              className="w-full object-contain bg-black"
+            />
+            <button
+              onClick={() => img && setShowImageModal(true)}
+              className="absolute bottom-5 right-5 bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition"
+              aria-label="이미지 전체 화면 보기"
+              title="이미지 전체 화면 보기"
+            >
+              <span className="text-4xl">🔎</span>
+            </button>
+          </>
         ) : (
           <p className="text-gray-400 text-lg">
             교수 선택 시 위치 안내 GIF 표시
@@ -348,6 +359,12 @@ export default function VisitorForm() {
         <AgreeModal
           onClose={() => setAgreeModal(false)}
           onAgree={submitWithAgreement}
+        />
+      )}
+      {showImageModal && img && (
+        <FullScreenImageModal
+          imgSrc={img}
+          onClose={() => setShowImageModal(false)}
         />
       )}
     </div>
@@ -412,51 +429,117 @@ const AgreeModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white p-6 w-96 rounded-2xl shadow-xl">
-        <h2 className="text-xl font-bold mb-4 text-center">
+      <div className="bg-white p-8 w-[90vw] max-w-3xl max-h-[90vh] rounded-2xl shadow-xl overflow-hidden">
+        <h2 className="text-2xl font-bold mb-6 text-center">
           개인정보 처리 동의
         </h2>
 
-        <div className="text-gray-700 text-sm mb-4 h-40 overflow-auto border p-3 rounded">
-          방문자 등록을 위해 이름, 전화번호, 방문목적, 담당교수 정보가
-          수집됩니다. 해당 정보는 방문 확인 및 보안 절차를 위해 사용됩니다.
-          방문자 등록을 위해 이름, 전화번호, 방문목적, 담당교수 정보가
-          수집됩니다. 해당 정보는 방문 확인 및 보안 절차를 위해 사용됩니다.
-          방문자 등록을 위해 이름, 전화번호, 방문목적, 담당교수 정보가
-          수집됩니다. 해당 정보는 방문 확인 및 보안 절차를 위해 사용됩니다.
-          방문자 등록을 위해 이름, 전화번호, 방문목적, 담당교수 정보가
-          수집됩니다. 해당 정보는 방문 확인 및 보안 절차를 위해 사용됩니다.
+        {/* 🔽 스크롤 제거 + 전체 한눈에 */}
+        <div className="text-gray-700 text-lg mb-6 whitespace-pre-line leading-relaxed">
+          {`「연구원 방문자 개인정보 수집 및 이용 동의서」
+
+본인은 연구원을 출입함에 있어 아래 내용을 충분히 확인하였으며,
+개인정보 수집·이용 및 보안수칙 준수에 동의합니다.
+
+■ 개인정보 수집·이용(개인정보보호법 제15조)
+- 수집 목적: 방문증 발급, 출입기록 확인, 사고·도난·분실 발생 시 안내
+- 수집 항목: 성명, 소속, 생년월일, 연락처, 차량정보, 출입기록
+- 보유 기간: 동의일로부터 최대 5년
+※ 동의를 거부할 수 있으나, 미동의 시 출입이 제한될 수 있습니다.
+
+■ 보안 준수 사항
+- 방문증을 항상 착용하고 분실되지 않도록 관리하며 타인에게 대여하지 않습니다.
+- 연구원 시설·설비·장비를 임의로 조작하지 않습니다.
+- 안전보건표지 및 모든 관련 규정을 준수합니다.
+- 지정된 장소 외 흡연 및 화기 사용을 금합니다.
+- 제한 또는 금지 구역에는 허가 없이 출입하지 않습니다.
+- 출입 목적 외 정보 접근 및 취득 정보의 유출·공개를 금지합니다.`}
         </div>
 
-        <label className="flex items-center gap-2 mb-4">
+        {/* 체크박스 */}
+        <label className="flex items-center gap-3 mb-5">
           <input
             type="checkbox"
             checked={checked}
             onChange={() => setChecked(!checked)}
-            className="w-5 h-5"
+            className="w-6 h-6"
           />
-          <span className="text-gray-700 text-sm">
+          <span className="text-gray-700 text-lg">
             개인정보 처리에 동의합니다.
           </span>
         </label>
 
-        <button
-          disabled={!checked}
-          onClick={onAgree}
-          className={`w-full py-3 rounded-lg font-bold text-white transition ${
-            checked ? "bg-green-500 hover:bg-green-600" : "bg-gray-400"
-          }`}
-        >
-          동의하고 제출하기
-        </button>
+        {/* 버튼 영역 */}
+        <div className="flex flex-col gap-3">
+          <button
+            disabled={!checked}
+            onClick={onAgree}
+            className={`w-full py-3.5 rounded-lg font-bold text-white text-lg transition ${
+              checked ? "bg-green-500 hover:bg-green-600" : "bg-gray-400"
+            }`}
+          >
+            동의하고 제출하기
+          </button>
 
-        <button
-          onClick={onClose}
-          className="mt-3 w-full py-2 text-gray-500 hover:text-gray-700 text-sm"
-        >
-          취소
-        </button>
+          <button
+            onClick={onClose}
+            className="w-full py-3 text-gray-500 hover:text-gray-700 text-lg"
+          >
+            취소
+          </button>
+        </div>
       </div>
+    </div>
+  );
+};
+
+interface FullScreenImageModalProps {
+  imgSrc: string;
+  onClose: () => void;
+}
+const FullScreenImageModal = ({
+  imgSrc,
+  onClose,
+}: FullScreenImageModalProps) => {
+  return (
+    <div
+      className="fixed inset-0 bg-black/90 flex items-center justify-center z-[60]"
+      onClick={onClose}
+    >
+      {/* 💥 수정된 부분 1: 모달 내부 컨테이너 크기 및 flex 설정 */}
+      <div
+        // w-[90vw] max-w-screen-xl max-h-[90vh] 는 그대로 유지
+        className="w-[90vw] max-w-screen-xl max-h-[90vh] p-4 flex items-center justify-center"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <TransformWrapper
+          initialScale={1}
+          minScale={1}
+          maxScale={2}
+          doubleClick={{ disabled: true }}
+          wheel={{ step: 0.1 }}
+          pinch={{ step: 5 }}
+          centerZoomedOut
+        >
+          <TransformComponent>
+            <img
+              src={imgSrc}
+              alt="확대된 교수 위치 안내 이미지"
+              // 🔥 수정된 부분 3: 이미지에 object-contain 대신 max-width, max-height 적용
+              // object-contain이 TransformComponent와 충돌할 수 있음
+              className="max-w-full max-h-full"
+              style={{ display: "block" }} // 불필요한 공백 방지
+            />
+          </TransformComponent>
+        </TransformWrapper>
+      </div>
+
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 text-white text-4xl font-light p-2 rounded-full hover:bg-white/20 transition"
+      >
+        ✖️
+      </button>
     </div>
   );
 };
