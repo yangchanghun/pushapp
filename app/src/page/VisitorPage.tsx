@@ -429,13 +429,13 @@ const AgreeModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white p-8 w-[90vw] max-w-3xl max-h-[90vh] rounded-2xl shadow-xl overflow-hidden">
-        <h2 className="text-2xl font-bold mb-6 text-center">
+      <div className="bg-white p-8 w-[90vw] max-w-3xl max-h-[70vh] rounded-2xl shadow-xl flex flex-col">
+        <h2 className="text-2xl font-bold mb-4 text-center">
           개인정보 처리 동의
         </h2>
 
-        {/* 🔽 스크롤 제거 + 전체 한눈에 */}
-        <div className="text-gray-700 text-lg mb-6 whitespace-pre-line leading-relaxed">
+        {/* 🔽 내용 영역: 스크롤 가능 */}
+        <div className="text-gray-700 text-lg whitespace-pre-line leading-relaxed overflow-y-auto flex-1 pr-2">
           {`「연구원 방문자 개인정보 수집 및 이용 동의서」
 
 본인은 연구원을 출입함에 있어 아래 내용을 충분히 확인하였으며,
@@ -457,7 +457,7 @@ const AgreeModal = ({
         </div>
 
         {/* 체크박스 */}
-        <label className="flex items-center gap-3 mb-5">
+        <label className="flex items-center gap-3 mt-4 mb-4">
           <input
             type="checkbox"
             checked={checked}
