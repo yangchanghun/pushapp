@@ -502,41 +502,82 @@ const FullScreenImageModal = ({
   onClose,
 }: FullScreenImageModalProps) => {
   return (
-    <div
-      className="fixed inset-0 bg-black/90 flex items-center justify-center z-[60]"
-      onClick={onClose}
-    >
-      {/* 💥 수정된 부분 1: 모달 내부 컨테이너 크기 및 flex 설정 */}
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[60]">
       <div
-        // w-[90vw] max-w-screen-xl max-h-[90vh] 는 그대로 유지
-        className="w-[90vw] max-w-screen-xl max-h-[90vh] p-4 flex items-center justify-center"
+        // 💥 모달 내부 컨테이너: relative를 추가해야 버튼이 absolute로 배치됨
+        className="w-[90vw] max-w-screen-xl max-h-[90vh] p-4 flex flex-col items-center justify-center relative"
         onClick={(e) => e.stopPropagation()}
       >
         <TransformWrapper
           initialScale={1}
           minScale={1}
-          maxScale={2}
+          maxScale={3} // 버튼 줌을 위해 최대 확대 비율을 3으로 증가 (선택 사항)
+          // 휠, 핀치, 더블 클릭 비활성화 (버튼으로만 제어)
+          wheel={{ disabled: true }}
+          pinch={{ disabled: true }}
           doubleClick={{ disabled: true }}
-          wheel={{ step: 0.1 }}
-          pinch={{ step: 5 }}
-          centerZoomedOut
+          // panning은 기본 활성화
         >
-          <TransformComponent>
-            <img
-              src={imgSrc}
-              alt="확대된 교수 위치 안내 이미지"
-              // 🔥 수정된 부분 3: 이미지에 object-contain 대신 max-width, max-height 적용
-              // object-contain이 TransformComponent와 충돌할 수 있음
-              className="max-w-full max-h-full"
-              style={{ display: "block" }} // 불필요한 공백 방지
-            />
-          </TransformComponent>
+          {/* 🔥 Render Props 패턴 사용 */}
+          {(utils) => (
+            <>
+              {/* 💥 컨트롤 버튼 영역: 상단 중앙에 배치 */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 flex space-x-2 p-2 rounded-b-lg bg-black/40 text-white z-10">
+                {/* 100% 리셋 버튼 */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    utils.resetTransform();
+                  }}
+                  className="px-3 py-1 text-sm bg-gray-600 hover:bg-gray-700 rounded transition font-medium"
+                  title="100% 크기로 초기화"
+                >
+                  100%
+                </button>
+
+                {/* 줌아웃 (-) 버튼 */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    utils.zoomOut(0.5, 200);
+                  }} // 0.5씩 축소
+                  className="px-3 py-1 text-lg bg-gray-600 hover:bg-gray-700 rounded transition"
+                  title="축소"
+                >
+                  -
+                </button>
+
+                {/* 줌인 (+) 버튼 */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    utils.zoomIn(0.5, 200);
+                  }} // 0.5씩 확대
+                  className="px-3 py-1 text-lg bg-gray-600 hover:bg-gray-700 rounded transition"
+                  title="확대"
+                >
+                  +
+                </button>
+              </div>
+
+              <TransformComponent>
+                <img
+                  src={imgSrc}
+                  alt="확대된 교수 위치 안내 이미지"
+                  className="max-w-full max-h-full"
+                  style={{ display: "block" }}
+                />
+              </TransformComponent>
+            </>
+          )}
         </TransformWrapper>
       </div>
 
+      {/* 닫기 버튼 */}
       <button
         onClick={onClose}
         className="absolute top-4 right-4 text-white text-4xl font-light p-2 rounded-full hover:bg-white/20 transition"
+        title="닫기"
       >
         ✖️
       </button>
