@@ -88,7 +88,7 @@ export default function AdminVisitorListPage() {
               <th className="p-3 border">전화번호</th>
               <th className="p-3 border">방문 목적</th>
               <th className="p-3 border">상태</th>
-              <th className="p-3 border">생성 날짜</th>
+              <th className="p-3 border">방문 날짜</th>
               <th className="p-3 border">체크 여부</th>
               <th className="p-3 border">회사명</th>
               <th className="p-3 border">생년월일</th>

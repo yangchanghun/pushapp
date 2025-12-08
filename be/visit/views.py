@@ -417,7 +417,7 @@ class VisitorsExcelDownload(APIView):
 
         headers = [
             "ID", "이름", "전화번호", "방문 목적",
-            "상태", "생성 날짜", "경비원 체크 여부", "담당자",
+            "상태", "방문 날짜", "경비원 체크 여부", "담당자",
             "생년월일", "차량번호", "회사명"
         ]
         ws.append(headers)
