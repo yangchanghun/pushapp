@@ -16,12 +16,14 @@ interface ProfessorModalProps {
   onClose: () => void;
   onSelect: (professor: Professor) => void;
   setImg: (url: string | undefined) => void;
+  setLocation: (location: string) => void;
 }
 
 export default function ProfessorModal({
   setImg,
   onClose,
   onSelect,
+  setLocation,
 }: ProfessorModalProps) {
   const [professors, setProfessors] = useState<Professor[]>([]);
   const [search, setSearch] = useState("");
@@ -90,6 +92,7 @@ export default function ProfessorModal({
                   key={prof.id}
                   onClick={() => {
                     setImg(prof.location_gif);
+                    setLocation(prof.location);
                     onSelect(prof);
                     onClose();
                   }}

@@ -9,6 +9,8 @@ const API_URL = "https://pushapp.kioedu.co.kr";
 
 export default function VisitorForm() {
   const [successModal, setSuccessModal] = useState(false);
+  const [location, setLocation] = useState("");
+  console.log(location);
   const [img, setImg] = useState<string | undefined>(sampleImage);
   // const [form, setForm] = useState({
   //   name: "",
@@ -314,27 +316,33 @@ export default function VisitorForm() {
       {/* ➡️ 오른쪽 이미지 (꽉 차게, 비율 유지) */}
       {/* <div className="w-1/2 h-screen bg-black flex items-center justify-center"> */}
       <div className="md:w-1/2 w-full h-[50vh] md:h-screen bg-black flex items-center justify-center">
-        {img ? (
-          <>
-            <img
-              src={img}
-              alt="교수 위치 안내 이미지"
-              className="w-full object-contain bg-black"
-            />
-            <button
-              onClick={() => img && setShowImageModal(true)}
-              className="absolute bottom-5 right-5 bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition"
-              aria-label="이미지 전체 화면 보기"
-              title="이미지 전체 화면 보기"
-            >
-              <span className="text-4xl">🔎</span>
-            </button>
-          </>
-        ) : (
-          <p className="text-gray-400 text-lg">
-            교수 선택 시 위치 안내 GIF 표시
-          </p>
-        )}
+        <div className="flex-col">
+          <div className="text-center bg-black/50 text-white font-bold text-xl px-4 py-2 rounded-lg mb-3">
+            {location && <div> 위치: {location}</div>}
+          </div>
+
+          {img ? (
+            <>
+              <img
+                src={img}
+                alt="교수 위치 안내 이미지"
+                className="w-full object-contain bg-black"
+              />
+              <button
+                onClick={() => img && setShowImageModal(true)}
+                className="absolute bottom-5 right-5 bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition"
+                aria-label="이미지 전체 화면 보기"
+                title="이미지 전체 화면 보기"
+              >
+                <span className="text-4xl">🔎</span>
+              </button>
+            </>
+          ) : (
+            <p className="text-gray-400 text-lg">
+              교수 선택 시 위치 안내 GIF 표시
+            </p>
+          )}
+        </div>
       </div>
 
       {/* 교수 선택 모달 */}
@@ -346,6 +354,7 @@ export default function VisitorForm() {
             setProfessorName(prof.name);
             setForm({ ...form, professor: String(prof.id) });
           }}
+          setLocation={setLocation}
         />
       )}
       {successModal && (
