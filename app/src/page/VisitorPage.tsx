@@ -2,14 +2,24 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import ProfessorModal from "../modal/ProfessorModal";
 import sampleImage from "@/assets/sampleImage.jpg";
+import initialImage from "@/assets/initialImage.jpg";
 import qrcodeImage from "@/assets/qrcode.png";
+import initialVoice from "@/assets/initialVoice.mp3";
+
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 const API_URL = "https://pushapp.kioedu.co.kr";
 // const API_URL = import.meta.env.VITE_API_URL;
 
 export default function VisitorForm() {
+  const [initialModal, setInitialModal] = useState(true);
   const [successModal, setSuccessModal] = useState(false);
   const [location, setLocation] = useState("");
+  useEffect(() => {
+    if (!initialModal) {
+      const audio = new Audio(initialVoice);
+      audio.play().catch((err) => console.log("Audio play error:", err));
+    }
+  }, [initialModal]);
   console.log(location);
   const [img, setImg] = useState<string | undefined>(sampleImage);
   // const [form, setForm] = useState({
@@ -136,6 +146,19 @@ export default function VisitorForm() {
       });
     }
   };
+
+  if (initialModal) {
+    return (
+      <div>
+        <img
+          onClick={() => {
+            setInitialModal(false);
+          }}
+          src={initialImage}
+        />
+      </div>
+    );
+  }
 
   return (
     // <div className="min-h-screen flex relative">
@@ -361,6 +384,7 @@ export default function VisitorForm() {
         <SuccessModal
           onClose={() => setSuccessModal(false)}
           message={successMsg}
+          setInitialModal={setInitialModal}
         />
       )}
 
@@ -382,6 +406,7 @@ export default function VisitorForm() {
 interface SuccessModalProps {
   onClose: () => void;
   message: string;
+  setInitialModal: (state: boolean) => void;
   duration?: number; // 자동 닫힘 시간(ms)
 }
 
@@ -389,12 +414,13 @@ const SuccessModal = ({
   onClose,
   message,
   duration = 3000,
+  setInitialModal,
 }: SuccessModalProps) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
+      setInitialModal(true);
     }, duration);
-
     return () => clearTimeout(timer);
   }, []);
 
