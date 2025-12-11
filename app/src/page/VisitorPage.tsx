@@ -506,33 +506,54 @@ interface FullScreenImageModalProps {
   imgSrc: string;
   onClose: () => void;
 }
+
 const FullScreenImageModal = ({
   imgSrc,
   onClose,
 }: FullScreenImageModalProps) => {
+  const [countdown, setCountdown] = useState(30); // 30초 카운트다운
+
+  useEffect(() => {
+    // 1초마다 countdown -1
+    const interval = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    // 30초 후 자동 닫기
+    const timer = setTimeout(() => {
+      onClose();
+    }, 30000);
+
+    // cleanup
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timer);
+    };
+  }, []);
+
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[60]">
+      {/* 🔥 카운트다운 표시 */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-xl font-semibold bg-black/50 px-4 py-1 rounded-lg">
+        {/* 자동 종료까지: {countdown}초 */}
+      </div>
+
       <div
-        // 💥 모달 내부 컨테이너: relative를 추가해야 버튼이 absolute로 배치됨
         className="w-[90vw] max-w-screen-xl max-h-[90vh] p-4 flex flex-col items-center justify-center relative"
         onClick={(e) => e.stopPropagation()}
       >
         <TransformWrapper
           initialScale={1}
           minScale={1}
-          maxScale={3} // 버튼 줌을 위해 최대 확대 비율을 3으로 증가 (선택 사항)
-          // 휠, 핀치, 더블 클릭 비활성화 (버튼으로만 제어)
+          maxScale={3}
           wheel={{ disabled: true }}
           pinch={{ disabled: true }}
           doubleClick={{ disabled: true }}
-          // panning은 기본 활성화
         >
-          {/* 🔥 Render Props 패턴 사용 */}
           {(utils) => (
             <>
-              {/* 💥 컨트롤 버튼 영역: 상단 중앙에 배치 */}
+              {/* 확대/축소 컨트롤 */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 flex space-x-2 p-2 rounded-b-lg bg-black/40 text-white z-10">
-                {/* 100% 리셋 버튼 */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -544,26 +565,22 @@ const FullScreenImageModal = ({
                   100%
                 </button>
 
-                {/* 줌아웃 (-) 버튼 */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     utils.zoomOut(0.5, 200);
-                  }} // 0.5씩 축소
+                  }}
                   className="px-3 py-1 text-lg bg-gray-600 hover:bg-gray-700 rounded transition"
-                  title="축소"
                 >
                   -
                 </button>
 
-                {/* 줌인 (+) 버튼 */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     utils.zoomIn(0.5, 200);
-                  }} // 0.5씩 확대
+                  }}
                   className="px-3 py-1 text-lg bg-gray-600 hover:bg-gray-700 rounded transition"
-                  title="확대"
                 >
                   +
                 </button>
@@ -573,8 +590,7 @@ const FullScreenImageModal = ({
                 <img
                   src={imgSrc}
                   alt="확대된 교수 위치 안내 이미지"
-                  className="max-w-full max-h-full"
-                  style={{ display: "block" }}
+                  className="max-w-full max-h-full block"
                 />
               </TransformComponent>
             </>
@@ -586,7 +602,6 @@ const FullScreenImageModal = ({
       <button
         onClick={onClose}
         className="absolute top-4 right-4 text-white text-4xl font-light p-2 rounded-full hover:bg-white/20 transition"
-        title="닫기"
       >
         ✖️
       </button>
