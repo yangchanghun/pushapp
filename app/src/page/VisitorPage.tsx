@@ -511,13 +511,13 @@ const FullScreenImageModal = ({
   imgSrc,
   onClose,
 }: FullScreenImageModalProps) => {
-  const [countdown, setCountdown] = useState(30); // 30초 카운트다운
+  // const [countdown, setCountdown] = useState(30);
 
   useEffect(() => {
     // 1초마다 countdown -1
-    const interval = setInterval(() => {
-      setCountdown((prev) => prev - 1);
-    }, 1000);
+    // const interval = setInterval(() => {
+    //   setCountdown((prev) => prev - 1);
+    // }, 1000);
 
     // 30초 후 자동 닫기
     const timer = setTimeout(() => {
@@ -526,7 +526,7 @@ const FullScreenImageModal = ({
 
     // cleanup
     return () => {
-      clearInterval(interval);
+      // clearInterval(interval);
       clearTimeout(timer);
     };
   }, []);
