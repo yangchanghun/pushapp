@@ -11,16 +11,64 @@ const API_URL = "https://pushapp.kioedu.co.kr";
 // const API_URL = import.meta.env.VITE_API_URL;
 
 export default function VisitorForm() {
+  const [confirmModal, setConfirmModal] = useState(false);
   const [initialModal, setInitialModal] = useState(true);
   const [successModal, setSuccessModal] = useState(false);
   const [location, setLocation] = useState("");
   useEffect(() => {
     if (!initialModal) {
+      setSuccessMsg("");
+      setImg(sampleImage);
+      setLocation("");
+      setSuccessModal(false);
+      setAgreeModal(false);
       const audio = new Audio(initialVoice);
       audio.play().catch((err) => console.log("Audio play error:", err));
     }
   }, [initialModal]);
   console.log(location);
+
+  const INACTIVITY_TIME_MS = 60000; // 60초
+  const INITIAL_SECONDS = INACTIVITY_TIME_MS / 1000; // 60
+  const [countdown, setCountdown] = useState(INITIAL_SECONDS);
+
+  useEffect(() => {
+    if (initialModal) return;
+
+    let timeLeft = INITIAL_SECONDS; // 초 단위
+    setCountdown(timeLeft);
+
+    // 1초마다 countdown 변경
+    const interval = setInterval(() => {
+      timeLeft -= 1;
+      setCountdown(timeLeft);
+
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        setInitialModal(true);
+      }
+    }, 1000);
+
+    // 사용자가 움직이면 타이머 초기화
+    const resetTimer = () => {
+      timeLeft = INITIAL_SECONDS;
+      setCountdown(timeLeft);
+    };
+
+    window.addEventListener("mousemove", resetTimer);
+    window.addEventListener("mousedown", resetTimer);
+    window.addEventListener("keypress", resetTimer);
+    window.addEventListener("touchstart", resetTimer);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("mousemove", resetTimer);
+      window.removeEventListener("mousedown", resetTimer);
+      window.removeEventListener("keypress", resetTimer);
+      window.removeEventListener("touchstart", resetTimer);
+    };
+  }, [initialModal]);
+
   const [img, setImg] = useState<string | undefined>(sampleImage);
   // const [form, setForm] = useState({
   //   name: "",
@@ -125,6 +173,7 @@ export default function VisitorForm() {
       const { token, name } = response.data;
       setSuccessMsg(`${name}님의 방문이 등록되었습니다!`);
       setSuccessModal(true);
+      // setConfirmModal(true);
       console.log(`🟢 Token: ${token}`);
     } catch (err) {
       console.error(err);
@@ -163,6 +212,10 @@ export default function VisitorForm() {
   return (
     // <div className="min-h-screen flex relative">
     <div className="min-h-screen flex flex-col md:flex-row relative">
+      <div className="absolute top-4 right-4 bg-black/70 text-white px-4 py-2 rounded-xl text-lg font-semibold z-50">
+        ⏳ {countdown}초 후 초기화
+      </div>
+
       <img
         src={qrcodeImage}
         className="
@@ -385,6 +438,8 @@ export default function VisitorForm() {
           onClose={() => setSuccessModal(false)}
           message={successMsg}
           setInitialModal={setInitialModal}
+          setConfirmModal={setConfirmModal}
+          confirmModal={confirmModal}
         />
       )}
 
@@ -392,12 +447,21 @@ export default function VisitorForm() {
         <AgreeModal
           onClose={() => setAgreeModal(false)}
           onAgree={submitWithAgreement}
+          setConfirmModal={setConfirmModal}
         />
       )}
       {showImageModal && img && (
         <FullScreenImageModal
           imgSrc={img}
           onClose={() => setShowImageModal(false)}
+        />
+      )}
+      {confirmModal && img && (
+        <ConfirmLocation
+          imgSrc={img}
+          onClose={() => setConfirmModal(false)}
+          setInitialModal={setInitialModal}
+          successMsg={successMsg}
         />
       )}
     </div>
@@ -407,47 +471,88 @@ interface SuccessModalProps {
   onClose: () => void;
   message: string;
   setInitialModal: (state: boolean) => void;
-  duration?: number; // 자동 닫힘 시간(ms)
+  duration?: number;
+  setConfirmModal: (state: boolean) => void;
+  confirmModal: boolean; // ✅ 추가
 }
-
 const SuccessModal = ({
   onClose,
   message,
-  duration = 3000,
+  duration = 10000,
   setInitialModal,
+  setConfirmModal,
+  confirmModal,
 }: SuccessModalProps) => {
   useEffect(() => {
+    if (confirmModal) return;
+
     const timer = setTimeout(() => {
       onClose();
       setInitialModal(true);
     }, duration);
+
     return () => clearTimeout(timer);
-  }, []);
+  }, [confirmModal]);
 
   return (
-    <div
-      className="
-        fixed inset-0 bg-black/40 backdrop-blur-sm
-        flex items-center justify-center z-50
-      "
-    >
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
       <div
         className="
-          bg-white w-80 p-6 rounded-2xl shadow-2xl
+          bg-white w-[90vw] max-w-sm
+          p-8 rounded-3xl shadow-2xl
           animate-[zoomIn_0.2s_ease-out]
+          flex flex-col
         "
       >
-        <h2 className="text-center text-2xl font-bold text-green-600 mb-3">
-          등록 완료!
+        {/* ✅ 제목 */}
+        <h2 className="text-center text-3xl font-extrabold text-green-600 mb-4">
+          등록 완료 🎉
         </h2>
 
-        <p className="text-center text-gray-700 mb-2 whitespace-pre-line">
+        {/* ✅ 메시지 */}
+        <p className="text-center text-gray-800 text-lg font-medium mb-2 whitespace-pre-line">
           {message}
         </p>
 
-        <p className="text-center text-gray-400 text-sm">
-          잠시 후 자동으로 닫힙니다...
+        <p className="text-center text-gray-400 text-sm mb-6">
+          잠시 후 자동으로 닫힙니다
         </p>
+
+        {/* ✅ 버튼 영역 */}
+        <div className="flex flex-col gap-4 mt-auto">
+          {/* 🔥 메인 액션 */}
+          <button
+            onClick={() => {
+              onClose();
+              setConfirmModal(true);
+            }}
+            className="
+              w-full py-4
+              bg-green-500 hover:bg-green-600
+              text-white text-xl font-bold
+              rounded-2xl shadow-lg
+              active:scale-95 transition
+            "
+          >
+            📍 위치 확인하기
+          </button>
+
+          {/* 🔹 서브 액션 */}
+          <button
+            onClick={() => {
+              onClose();
+              setInitialModal(true);
+            }}
+            className="
+              w-full py-3
+              text-gray-500 text-lg
+              rounded-xl
+              hover:bg-gray-100 transition
+            "
+          >
+            확인
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -456,9 +561,11 @@ const SuccessModal = ({
 const AgreeModal = ({
   onClose,
   onAgree,
-}: {
+}: // setConfirmModal,
+{
   onClose: () => void;
   onAgree: () => void;
+  setConfirmModal: (state: boolean) => void;
 }) => {
   const [checked, setChecked] = useState(false);
 
@@ -508,7 +615,10 @@ const AgreeModal = ({
         <div className="flex flex-col gap-3">
           <button
             disabled={!checked}
-            onClick={onAgree}
+            onClick={() => {
+              onAgree();
+              // setConfirmModal(true);
+            }}
             className={`w-full py-3.5 rounded-lg font-bold text-white text-lg transition ${
               checked ? "bg-green-500 hover:bg-green-600" : "bg-gray-400"
             }`}
@@ -631,6 +741,127 @@ const FullScreenImageModal = ({
       >
         ✖️
       </button>
+    </div>
+  );
+};
+
+interface ConfirmLocationProps {
+  imgSrc: string;
+  onClose: () => void;
+  setInitialModal: (state: boolean) => void;
+  successMsg: string;
+}
+
+const ConfirmLocation = ({
+  imgSrc,
+  onClose,
+  setInitialModal,
+  successMsg,
+}: ConfirmLocationProps) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setInitialModal(true);
+      onClose();
+    }, 30000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleConfirm = () => {
+    onClose();
+    setInitialModal(true);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/90 z-[60] flex flex-col">
+      {/* 🔹 상단 안내 문구 */}
+      <div className="pt-6 px-4 text-center">
+        <div className="inline-block bg-black/60 text-white text-lg md:text-xl font-semibold px-6 py-3 rounded-2xl shadow">
+          <span className="text-green-400 font-bold">{successMsg}</span>
+          <br />
+          아래 위치를 확인해 주세요
+          <br />
+          <span className="text-sm text-gray-300">
+            (30초 후 자동으로 닫힙니다)
+          </span>
+        </div>
+      </div>
+
+      {/* 🔹 이미지 영역 (가장 크게) */}
+      <div className="flex-1 flex items-center justify-center px-4 py-6">
+        <div
+          className="w-full max-w-6xl h-full max-h-[70vh] bg-black rounded-2xl overflow-hidden relative"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <TransformWrapper
+            initialScale={1}
+            minScale={1}
+            maxScale={3}
+            wheel={{ disabled: true }}
+            pinch={{ disabled: true }}
+            doubleClick={{ disabled: true }}
+          >
+            {(utils) => (
+              <>
+                {/* 확대/축소 컨트롤 */}
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 flex gap-2 px-3 py-2 rounded-xl bg-black/50 text-white z-10">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      utils.resetTransform();
+                    }}
+                    className="px-3 py-1 bg-gray-600 rounded-lg"
+                  >
+                    100%
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      utils.zoomOut(0.5, 200);
+                    }}
+                    className="px-3 py-1 bg-gray-600 rounded-lg"
+                  >
+                    -
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      utils.zoomIn(0.5, 200);
+                    }}
+                    className="px-3 py-1 bg-gray-600 rounded-lg"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <TransformComponent>
+                  <img
+                    src={imgSrc}
+                    alt="위치 안내 이미지"
+                    className="w-full h-full object-contain"
+                  />
+                </TransformComponent>
+              </>
+            )}
+          </TransformWrapper>
+        </div>
+      </div>
+
+      {/* 🔹 하단 버튼 */}
+      <div className="pb-8 flex justify-center">
+        <button
+          onClick={handleConfirm}
+          className="
+            px-14 py-5
+            bg-green-500 hover:bg-green-600
+            text-white text-2xl font-bold
+            rounded-3xl shadow-xl
+            active:scale-95 transition
+          "
+        >
+          위치 확인 완료
+        </button>
+      </div>
     </div>
   );
 };
