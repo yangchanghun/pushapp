@@ -461,7 +461,6 @@ export default function VisitorForm() {
           imgSrc={img}
           onClose={() => setConfirmModal(false)}
           setInitialModal={setInitialModal}
-          successMsg={successMsg}
         />
       )}
     </div>
@@ -749,14 +748,12 @@ interface ConfirmLocationProps {
   imgSrc: string;
   onClose: () => void;
   setInitialModal: (state: boolean) => void;
-  successMsg: string;
 }
 
 const ConfirmLocation = ({
   imgSrc,
   onClose,
   setInitialModal,
-  successMsg,
 }: ConfirmLocationProps) => {
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -777,10 +774,6 @@ const ConfirmLocation = ({
       {/* 🔹 상단 안내 문구 */}
       <div className="pt-6 px-4 text-center">
         <div className="inline-block bg-black/60 text-white text-lg md:text-xl font-semibold px-6 py-3 rounded-2xl shadow">
-          <span className="text-green-400 font-bold">{successMsg}</span>
-          <br />
-          아래 위치를 확인해 주세요
-          <br />
           <span className="text-sm text-gray-300">
             (30초 후 자동으로 닫힙니다)
           </span>
@@ -790,7 +783,7 @@ const ConfirmLocation = ({
       {/* 🔹 이미지 영역 (가장 크게) */}
       <div className="flex-1 flex items-center justify-center px-4 py-6">
         <div
-          className="w-full max-w-6xl h-full max-h-[70vh] bg-black rounded-2xl overflow-hidden relative"
+          className="w-full max-w-6xl h-full max-h-[70vh] overflow-hidden relative"
           onClick={(e) => e.stopPropagation()}
         >
           <TransformWrapper
