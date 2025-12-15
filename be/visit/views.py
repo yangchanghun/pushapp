@@ -103,7 +103,7 @@ def send_sms_with_msg_hub(token: str, callback: str, phone: str, text: str):
 # ------------------------------------------
 class VisitorCreateView(APIView):
     def post(self, request):
-        serializer = VisitorSerializer(data=request.data)
+        serializer = VisitorsSerializers(data=request.data)
 
         if serializer.is_valid():
             visitor = serializer.save()
