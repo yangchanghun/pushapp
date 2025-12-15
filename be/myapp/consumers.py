@@ -35,9 +35,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "token": event.get("token", None),
             "createdAt": event.get("created_at"),   
         }))
-        
+
     async def visitor_created(self, event):
         await self.send(text_data=json.dumps({
             "type": "visitor_created",
             "visitor": event["visitor"],
+        }))
+
+    async def visitor_status_updated(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "visitor_status_updated",
+            "token": event["token"],
+            "status": event["status"],
         }))

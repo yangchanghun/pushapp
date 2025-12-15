@@ -55,6 +55,11 @@ export default function AdminVisitorListPage() {
         return [visitor, ...prev];
       });
     },
+    onVisitorStatusUpdated: (token, newStatus) => {
+      setData((prev) =>
+        prev.map((v) => (v.token === token ? { ...v, status: newStatus } : v))
+      );
+    },
   });
   // URL에서 값 읽기
   let initialPage = Number(searchParams.get("page")) || 1;

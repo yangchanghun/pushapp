@@ -275,6 +275,15 @@ def accept_visit(request, token):
         }
     )
 
+    async_to_sync(channel_layer.group_send)(
+        "room_1",
+        {
+            "type": "visitor_status_updated",
+            "token": str(visitor.token),
+            "status": visitor.status,  # "수락"
+        }
+    )
+
     return HttpResponse("✅ 방문이 수락되었습니다.")
 
 
@@ -300,6 +309,16 @@ def reject_visit(request, token):
             "message": f"{sender}: {message}",
             "token": str(token),  # ✅ UUID → 문자열 변환
             "created_at": visitor.created_at.isoformat(),   # ⭐ 추가
+        }
+    )
+
+
+    async_to_sync(channel_layer.group_send)(
+        "room_1",
+        {
+            "type": "visitor_status_updated",
+            "token": str(visitor.token),
+            "status": visitor.status,  # "거절"
         }
     )
 

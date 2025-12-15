@@ -12,6 +12,7 @@ export interface Visitor {
   car_number: string;
   company_name: string;
   birthdate: string;
+  token: string;
 }
 
 export function useVisitors(search: string, status: string, page: number) {

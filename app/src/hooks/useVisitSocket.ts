@@ -6,6 +6,7 @@ interface Props {
   apiHost: string;
   wsProtocol: string;
   onVisitorCreated?: (visitor: Visitor) => void;
+  onVisitorStatusUpdated?: (token: string, status: string) => void;
 }
 
 export default function useVisitSocket({
@@ -13,6 +14,7 @@ export default function useVisitSocket({
   apiHost,
   wsProtocol,
   onVisitorCreated,
+  onVisitorStatusUpdated,
 }: Props) {
   useEffect(() => {
     const socket = new WebSocket(`${wsProtocol}://${apiHost}/ws/chat/1/`);
@@ -26,6 +28,10 @@ export default function useVisitSocket({
 
         if (data.type === "visitor_created") {
           onVisitorCreated?.(data.visitor);
+        }
+
+        if (data.type === "visitor_status_updated") {
+          onVisitorStatusUpdated?.(data.token, data.status);
         }
       } catch (err) {
         console.error("WebSocket parse error:", err);
