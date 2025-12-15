@@ -43,5 +43,5 @@ export function useVisitors(search: string, status: string, page: number) {
     fetchVisitors();
   }, [search, status, page]);
 
-  return { data, count, loading };
+  return { data, count, loading, setData };
 }

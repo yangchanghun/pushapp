@@ -24,12 +24,38 @@ export default function AdminVisitorListPage() {
   const apiHost = apiBase.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
   const userId = "1";
+  // useVisitSocket({
+  //   userId,
+  //   apiHost,
+  //   wsProtocol,
+  // });
+
   useVisitSocket({
     userId,
     apiHost,
     wsProtocol,
-  });
+    onVisitorCreated: (visitor) => {
+      // 🔍 현재 필터 조건 체크
+      if (status && visitor.status !== status) return;
 
+      if (
+        search &&
+        !(
+          visitor.name.includes(search) ||
+          visitor.phonenumber.includes(search) ||
+          visitor.visit_purpose.includes(search)
+        )
+      ) {
+        return;
+      }
+
+      // ✅ 중복 방지 + 실시간 prepend
+      setData((prev) => {
+        if (prev.some((v) => v.id === visitor.id)) return prev;
+        return [visitor, ...prev];
+      });
+    },
+  });
   // URL에서 값 읽기
   let initialPage = Number(searchParams.get("page")) || 1;
   const initialSearch = searchParams.get("search") || "";
@@ -52,7 +78,7 @@ export default function AdminVisitorListPage() {
   }, [page, search, status, setSearchParams]);
 
   // 데이터 가져오기
-  const { data, count, loading } = useVisitors(search, status, page);
+  const { data, count, loading, setData } = useVisitors(search, status, page);
 
   const excelURL = `${
     // import.meta.env.VITE_API_URL

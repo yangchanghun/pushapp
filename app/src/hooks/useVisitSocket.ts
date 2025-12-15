@@ -1,12 +1,19 @@
+// hooks/useVisitSocket.ts
 import { useEffect } from "react";
-
+import type { Visitor } from "./useVisitors"; // 경로 맞게 수정
 interface Props {
   userId?: string;
   apiHost: string;
   wsProtocol: string;
+  onVisitorCreated?: (visitor: Visitor) => void;
 }
 
-export default function useVisitSocket({ userId, apiHost, wsProtocol }: Props) {
+export default function useVisitSocket({
+  userId,
+  apiHost,
+  wsProtocol,
+  onVisitorCreated,
+}: Props) {
   useEffect(() => {
     const socket = new WebSocket(`${wsProtocol}://${apiHost}/ws/chat/1/`);
 
@@ -16,12 +23,15 @@ export default function useVisitSocket({ userId, apiHost, wsProtocol }: Props) {
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log(data);
+
+        if (data.type === "visitor_created") {
+          onVisitorCreated?.(data.visitor);
+        }
       } catch (err) {
         console.error("WebSocket parse error:", err);
       }
     };
 
     return () => socket.close();
-  }, [userId, apiHost, wsProtocol]);
+  }, [userId, apiHost, wsProtocol, onVisitorCreated]);
 }
