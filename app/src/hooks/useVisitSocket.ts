@@ -1,6 +1,9 @@
 // hooks/useVisitSocket.ts
 import { useEffect } from "react";
 import type { Visitor } from "./useVisitors"; // 경로 맞게 수정
+import acceptSound from "@/assets/voice/accept.mp3";
+import rejectSound from "@/assets/voice/reject.mp3";
+import { playSound } from "../utils/PlaySound";
 interface Props {
   userId?: string;
   apiHost: string;
@@ -28,10 +31,17 @@ export default function useVisitSocket({
 
         if (data.type === "visitor_created") {
           onVisitorCreated?.(data.visitor);
+          playSound(acceptSound); // 음성 바꿔야함
         }
 
         if (data.type === "visitor_status_updated") {
           onVisitorStatusUpdated?.(data.token, data.status);
+          if (data.status === "수락") {
+            playSound(acceptSound);
+          }
+          if (data.status === "거절") {
+            playSound(rejectSound);
+          }
         }
       } catch (err) {
         console.error("WebSocket parse error:", err);

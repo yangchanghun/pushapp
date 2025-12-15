@@ -5,6 +5,59 @@ body {
   font-family: "Pretendard", sans-serif;
 }
 
+@keyframes rainbow-bg {
+  0% {
+    background-color: red;
+  }
+  16% {
+    background-color: orange;
+  }
+  32% {
+    background-color: yellow;
+  }
+  48% {
+    background-color: green;
+  }
+  64% {
+    background-color: blue;
+  }
+  80% {
+    background-color: indigo;
+  }
+  100% {
+    background-color: violet;
+  }
+}
+
+.animate-rainbow-bg {
+  animation: rainbow-bg 1s linear infinite;
+}
+
+@keyframes rainbow {
+  0% {
+    color: red;
+  }
+  20% {
+    color: orange;
+  }
+  40% {
+    color: yellow;
+  }
+  60% {
+    color: green;
+  }
+  80% {
+    color: blue;
+  }
+  100% {
+    color: violet;
+  }
+}
+
+.animate-rainbow {
+  animation: rainbow 1s linear infinite;
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
