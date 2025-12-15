@@ -107,9 +107,23 @@ class VisitorCreateView(APIView):
 
         if serializer.is_valid():
             visitor = serializer.save()
-
+            visitor_data = serializer.data  # 🔥 이미 dict
             professor_id = serializer.data["professor"]
             professor_phonenumber = Professors.objects.get(id=professor_id).phonenumber
+
+
+            sender = visitor.professor.name if visitor.professor else "교수"
+            message = f"{visitor.name} 방문을 수락했습니다."
+            channel_layer = get_channel_layer()
+
+            async_to_sync(channel_layer.group_send)(
+                "room_1",
+                {
+                    "type": "visitor_created",   # 🔥 이벤트 타입
+                    "visitor": visitor_data,     # 🔥 전체 방문자 정보
+                }
+            )
+
 
             token = serializer.data["token"]
             link_url = f"https://pushapp.kioedu.co.kr/a/{token}"

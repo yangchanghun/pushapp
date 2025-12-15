@@ -35,3 +35,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "token": event.get("token", None),
             "createdAt": event.get("created_at"),   
         }))
+        
+    async def visitor_created(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "visitor_created",
+            "visitor": event["visitor"],
+        }))

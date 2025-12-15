@@ -28,7 +28,7 @@ export default function VisitorForm() {
   }, [initialModal]);
   console.log(location);
 
-  const INACTIVITY_TIME_MS = 60000; // 60초
+  const INACTIVITY_TIME_MS = 120000; // 60초
   const INITIAL_SECONDS = INACTIVITY_TIME_MS / 1000; // 60
   const [countdown, setCountdown] = useState(INITIAL_SECONDS);
 
@@ -200,8 +200,20 @@ export default function VisitorForm() {
     return (
       <div>
         <img
+          style={{ width: "100%", height: "100vh" }}
           onClick={() => {
             setInitialModal(false);
+            setForm({
+              name: "",
+              phonenumber: "",
+              visit_purpose: "",
+              professor: "",
+              birth_year: "",
+              birth_month: "",
+              birth_day: "",
+              car_number: "",
+              company_name: "",
+            });
           }}
           src={initialImage}
         />
@@ -391,7 +403,7 @@ export default function VisitorForm() {
 
       {/* ➡️ 오른쪽 이미지 (꽉 차게, 비율 유지) */}
       {/* <div className="w-1/2 h-screen bg-black flex items-center justify-center"> */}
-      <div className="md:w-1/2 w-full h-[50vh] md:h-screen bg-black flex items-center justify-center">
+      <div className="md:w-1/2 w-full h-[50vh] md:h-screen flex items-center justify-center">
         <div className="flex-col">
           <div className="text-center bg-black/50 text-white font-bold text-xl px-4 py-2 rounded-lg mb-3">
             {location && <div> 위치: {location}</div>}
@@ -505,7 +517,7 @@ const SuccessModal = ({
       >
         {/* ✅ 제목 */}
         <h2 className="text-center text-3xl font-extrabold text-green-600 mb-4">
-          등록 완료 🎉
+          등록 완료
         </h2>
 
         {/* ✅ 메시지 */}
@@ -533,7 +545,7 @@ const SuccessModal = ({
               active:scale-95 transition
             "
           >
-            📍 위치 확인하기
+            위치 확인하기
           </button>
 
           {/* 🔹 서브 액션 */}
@@ -657,7 +669,7 @@ const FullScreenImageModal = ({
     // 30초 후 자동 닫기
     const timer = setTimeout(() => {
       onClose();
-    }, 30000);
+    }, 60000);
 
     // cleanup
     return () => {
@@ -759,7 +771,7 @@ const ConfirmLocation = ({
     const timer = setTimeout(() => {
       setInitialModal(true);
       onClose();
-    }, 30000);
+    }, 60000);
 
     return () => clearTimeout(timer);
   }, []);

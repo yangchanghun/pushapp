@@ -2,10 +2,33 @@ import { useState, useEffect } from "react";
 import { useVisitors } from "../hooks/useVisitors";
 import Pagination from "../components/Pagination";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import useVisitSocket from "../hooks/useVisitSocket";
 
 export default function AdminVisitorListPage() {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+
+    const yy = String(date.getFullYear()).slice(2); // 2025 → 25
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const hh = String(date.getHours()).padStart(2, "0"); // 24시간
+    const min = String(date.getMinutes()).padStart(2, "0");
+
+    return `${yy}.${mm}.${dd} ${hh}:${min}`;
+  };
+
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  const apiBase = "https://pushapp.kioedu.co.kr";
+  const apiHost = apiBase.replace(/^https?:\/\//, "");
+  const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+  const userId = "1";
+  useVisitSocket({
+    userId,
+    apiHost,
+    wsProtocol,
+  });
 
   // URL에서 값 읽기
   let initialPage = Number(searchParams.get("page")) || 1;
@@ -121,9 +144,7 @@ export default function AdminVisitorListPage() {
                   <td className="p-3 border">{v.phonenumber}</td>
                   <td className="p-3 border">{v.visit_purpose}</td>
                   <td className="p-3 border">{v.status}</td>
-                  <td className="p-3 border">
-                    {new Date(v.created_at).toLocaleString()}
-                  </td>
+                  <td className="p-3 border">{formatDate(v.created_at)}</td>
                   <td className="p-3 border">
                     {v.is_checked ? "✔ 체크됨" : "❌ 미체크"}
                   </td>

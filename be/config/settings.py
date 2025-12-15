@@ -84,10 +84,8 @@ INSTALLED_APPS = [
 ]
 
 CRONJOBS = [
-    # ('0 3 * * *', 'visit.cron.delete_expired_visitors'),
-    ('*/5 * * * *', 'visit.cron.delete_expired_visitors'),
+    ('0 3 * * *', 'visit.cron.delete_expired_visitors'),
 ]
-
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # ✅ 추가 (가장 위쪽)
     'django.middleware.security.SecurityMiddleware',

@@ -41,7 +41,7 @@ export default function SpaceBackground() {
 
     const material = new THREE.PointsMaterial({
       color: 0xffffff,
-      size: 1.2,
+      size: 10,
       transparent: true,
       opacity: 0.9,
     });

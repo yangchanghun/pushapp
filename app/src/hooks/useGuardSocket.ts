@@ -32,7 +32,7 @@ export default function useGuardSocket({
         if (!data.message || !data.message.includes("방문")) {
           return; // 이게 핵심!
         }
-
+        console.log(data);
         const { message, token, createdAt } = data;
         const [sender, rest] = message.split(": ");
         const [visitor, text] = rest.split(" 방문");
