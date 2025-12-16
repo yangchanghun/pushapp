@@ -29,14 +29,15 @@ export default function AdminVisitorListPage() {
   const [soundOn, setSoundOn] = useState(false);
   const handleToggleSound = () => {
     if (!soundOn) {
-      // 🔓 OFF → ON 될 때만 unlock
       const audio = new Audio(acceptSound);
+      audio.volume = 0; // 🔇 무음으로 unlock
       audio
         .play()
         .then(() => {
           audio.pause();
           audio.currentTime = 0;
-          console.log("🔓 Audio unlocked");
+          audio.volume = 1; // 다시 원래 볼륨
+          console.log("🔓 Audio unlocked (silent)");
         })
         .catch(console.warn);
     }
