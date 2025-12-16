@@ -11,9 +11,11 @@ interface Professor {
   location_gif?: string | null;
 }
 export default function AdminPage() {
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = "https://pushapp.kioedu.co.kr";
+  // const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
-
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
   const [professors, setProfessors] = useState<Professor[]>([]);
   const [search, setSearch] = useState("");
   const [registerOpen, setRegisterOpen] = useState(false);
@@ -26,6 +28,7 @@ export default function AdminPage() {
       })
       .then((res) => {
         setProfessors(res.data);
+        setPage(1); // 검색 시 페이지 초기화
       });
   };
 
@@ -43,6 +46,37 @@ export default function AdminPage() {
     loadProfessors();
   };
   const navigate = useNavigate();
+
+  const totalPages = Math.ceil(professors.length / pageSize);
+
+  const paginatedProfessors = professors.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
+
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible + 2) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+
+      if (page > 3) pages.push("...");
+
+      const start = Math.max(2, page - 1);
+      const end = Math.min(totalPages - 1, page + 1);
+
+      for (let i = start; i <= end; i++) pages.push(i);
+
+      if (page < totalPages - 2) pages.push("...");
+
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
   return (
     <div className="p-10 max-w-4xl mx-auto">
       <div className="flex  items-center mb-6">
@@ -87,7 +121,7 @@ export default function AdminPage() {
           </thead>
 
           <tbody>
-            {professors.map((p) => (
+            {paginatedProfessors.map((p) => (
               <tr key={p.id} className="border-b hover:bg-gray-100">
                 <td className="py-2">{p.id}</td>
                 <td className="py-2">{p.name}</td>
@@ -114,6 +148,44 @@ export default function AdminPage() {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6 space-x-2">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+            className="px-3 py-1 border rounded disabled:opacity-40"
+          >
+            이전
+          </button>
+
+          {getPageNumbers().map((p, idx) =>
+            p === "..." ? (
+              <span key={idx} className="px-2">
+                ...
+              </span>
+            ) : (
+              <button
+                key={idx}
+                onClick={() => setPage(p as number)}
+                className={`px-3 py-1 border rounded ${
+                  page === p ? "bg-blue-600 text-white" : ""
+                }`}
+              >
+                {p}
+              </button>
+            )
+          )}
+
+          <button
+            disabled={page === totalPages}
+            onClick={() => setPage(page + 1)}
+            className="px-3 py-1 border rounded disabled:opacity-40"
+          >
+            다음
+          </button>
+        </div>
+      )}
 
       {/* 등록 모달 */}
       {registerOpen && (
