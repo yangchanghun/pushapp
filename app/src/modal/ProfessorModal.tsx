@@ -107,9 +107,7 @@ export default function ProfessorModal({
                   className="w-full text-left px-4 py-3 hover:bg-blue-50"
                 >
                   <div className="font-semibold">{prof.name}</div>
-                  <div className="text-sm text-gray-500">
-                    {prof.phonenumber} · {prof.location}
-                  </div>
+                  <div className="text-sm text-gray-500">{prof.location}</div>
                 </button>
               ))}
             </div>
