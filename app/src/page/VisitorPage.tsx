@@ -588,7 +588,7 @@ const AgreeModal = ({
         </h2>
 
         {/* 🔽 내용 영역: 스크롤 가능 */}
-        <div className="text-gray-60 text-m whitespace-pre-line leading-relaxed overflow-y-auto flex-1 pr-2">
+        <div className="text-gray-60 text-sm whitespace-pre-line leading-relaxed overflow-y-auto flex-1 pr-2">
           {`「연구원 방문자 개인정보 수집 및 이용 동의서」
 
 본인은 연구원을 출입함에 있어 아래 내용을 충분히 확인하였으며,
