@@ -157,7 +157,7 @@ export default function VisitorForm() {
     e.preventDefault();
 
     if (!form.professor) {
-      setErrorMsg("교수를 선택해주세요.");
+      setErrorMsg("담당자를 선택해주세요.");
       return;
     }
     // 🔥 서버요청 금지, 동의 모달 열기
@@ -380,7 +380,7 @@ export default function VisitorForm() {
           {/* 교수 찾기 */}
           <div className="mt-6 flex items-center gap-3">
             <div className="flex-1 px-4 py-3 border rounded-lg">
-              {professorName || "교수를 선택하세요"}
+              {professorName || "담당자를 선택해주세요."}
             </div>
             <button
               type="button"

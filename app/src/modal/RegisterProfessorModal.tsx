@@ -7,13 +7,15 @@ interface Props {
 }
 
 export default function RegisterProfessorModal({ onClose, onSuccess }: Props) {
-  const API_URL = import.meta.env.VITE_API_URL;
+  // const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = "https://pushapp.kioedu.co.kr";
   const token = localStorage.getItem("token");
 
   const [form, setForm] = useState({
     name: "",
     phonenumber: "",
     location: "",
+    department: "",
   });
 
   const [file, setFile] = useState<File | null>(null);
@@ -38,6 +40,7 @@ export default function RegisterProfessorModal({ onClose, onSuccess }: Props) {
     formData.append("name", form.name);
     formData.append("phonenumber", form.phonenumber);
     formData.append("location", form.location);
+    formData.append("department", form.department || "");
 
     if (file) formData.append("location_gif", file);
 
@@ -97,7 +100,14 @@ export default function RegisterProfessorModal({ onClose, onSuccess }: Props) {
             onChange={handleChange}
             className="border rounded-lg p-2"
           />
-
+          <input
+            type="text"
+            name="department"
+            placeholder="부서 (예: 화학)"
+            value={form.department}
+            onChange={handleChange}
+            className="border rounded-lg p-2"
+          />
           {/* GIF 업로드 */}
           <input
             type="file"

@@ -9,6 +9,7 @@ interface Professor {
   phonenumber: string;
   location: string;
   location_gif?: string;
+  department?: string;
 }
 
 interface ProfessorModalProps {
@@ -76,7 +77,7 @@ export default function ProfessorModal({
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-lg w-full max-w-2xl p-6 relative">
-        <h2 className="text-xl font-semibold mb-4">교수 찾기</h2>
+        <h2 className="text-xl font-semibold mb-4">담당자 찾기</h2>
 
         <input
           type="text"
@@ -107,7 +108,9 @@ export default function ProfessorModal({
                   className="w-full text-left px-4 py-3 hover:bg-blue-50"
                 >
                   <div className="font-semibold">{prof.name}</div>
-                  <div className="text-sm text-gray-500">{prof.location}</div>
+                  <div className="text-sm text-gray-500">
+                    {prof.department && prof.department + "|"} {prof.location}
+                  </div>
                 </button>
               ))}
             </div>

@@ -9,6 +9,7 @@ interface Professor {
   phonenumber: string;
   location: string;
   location_gif?: string | null;
+  department?: string;
 }
 export default function AdminPage() {
   const API_URL = "https://pushapp.kioedu.co.kr";
@@ -116,6 +117,7 @@ export default function AdminPage() {
               <th className="py-3 text-left">이름</th>
               <th className="py-3 text-left">전화번호</th>
               <th className="py-3 text-left">위치</th>
+              <th className="py-3 text-center">부서</th>
               <th className="py-3 text-center">관리</th>
             </tr>
           </thead>
@@ -127,6 +129,7 @@ export default function AdminPage() {
                 <td className="py-2">{p.name}</td>
                 <td className="py-2">{p.phonenumber}</td>
                 <td className="py-2">{p.location}</td>
+                <td className="py-2">{p.department}</td>
 
                 <td className="py-2 text-center">
                   <button
