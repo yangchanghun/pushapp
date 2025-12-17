@@ -397,16 +397,34 @@ from rest_framework import generics, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Visitors
 from .serializers import VisitorsSerializers
-
+from .filters import VisitorsFilter
 
 class VisitorsListView(generics.ListAPIView):
-    queryset = Visitors.objects.select_related('professor').order_by('-id')
+    queryset = Visitors.objects.select_related("professor").order_by("-id")
     serializer_class = VisitorsSerializers
     pagination_class = VisitorsPagination
 
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['status', 'is_checked', 'professor']  # 정확한 필터
-    search_fields = ['name', 'phonenumber', 'visit_purpose', 'professor__name']  # 부분 검색
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    ]
+
+    filterset_class = VisitorsFilter  # 🔥 핵심
+    search_fields = [
+        "name",
+        "phonenumber",
+        "visit_purpose",
+        "professor__name",
+    ]
+# class VisitorsListView(generics.ListAPIView):
+#     queryset = Visitors.objects.select_related('professor').order_by('-id')
+#     serializer_class = VisitorsSerializers
+#     pagination_class = VisitorsPagination
+
+#     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+#     filterset_fields = ['status', 'is_checked', 'professor']  # 정확한 필터
+#     search_fields = ['name', 'phonenumber', 'visit_purpose', 'professor__name']  # 부분 검색
+
 
 
 
@@ -417,12 +435,20 @@ from django.http import HttpResponse
 from rest_framework.views import APIView
 from .models import Visitors
 from django.db import models
+
+
 class VisitorsExcelDownload(APIView):
     def get(self, request):
-        queryset = Visitors.objects.select_related('professor').order_by('-id')
+        queryset = Visitors.objects.select_related("professor").order_by("-id")
 
-        # 검색 적용
-        search = request.GET.get('search')
+        # 🔍 django-filter 적용
+        visitor_filter = VisitorsFilter(
+            request.GET, queryset=queryset
+        )
+        queryset = visitor_filter.qs
+
+        # 🔍 검색어 적용
+        search = request.GET.get("search")
         if search:
             queryset = queryset.filter(
                 models.Q(name__icontains=search)
@@ -431,17 +457,8 @@ class VisitorsExcelDownload(APIView):
                 | models.Q(professor__name__icontains=search)
             )
 
-        # 상태 필터 적용
-        status = request.GET.get('status')
-        if status:
-            queryset = queryset.filter(status=status)
-
-        # 🔥 페이지네이션 적용
-        page = int(request.GET.get('page', 1))
-        page_size = 20
-        start = (page - 1) * page_size
-        end = start + page_size
-        queryset = queryset[start:end]
+        # ❌ 엑셀에는 페이지네이션 보통 안 씀
+        # (필요하면 유지해도 됨)
 
         # ------ 엑셀 생성 ------
         wb = openpyxl.Workbook()
@@ -470,14 +487,77 @@ class VisitorsExcelDownload(APIView):
                 row.company_name or "",
             ])
 
-        # 스타일
-        for col in ws.columns:
-            for cell in col:
-                cell.alignment = Alignment(horizontal="center", vertical="center")
-                cell.font = Font(size=12)
+        response = HttpResponse(
+            content_type="application/vnd.ms-excel"
+        )
+        response[
+            "Content-Disposition"
+        ] = "attachment; filename=visitors.xlsx"
 
-        # HTTP 응답
-        response = HttpResponse(content_type='application/vnd.ms-excel')
-        response['Content-Disposition'] = 'attachment; filename=visitors.xlsx'
         wb.save(response)
         return response
+
+# class VisitorsExcelDownload(APIView):
+#     def get(self, request):
+#         queryset = Visitors.objects.select_related('professor').order_by('-id')
+
+#         # 검색 적용
+#         search = request.GET.get('search')
+#         if search:
+#             queryset = queryset.filter(
+#                 models.Q(name__icontains=search)
+#                 | models.Q(phonenumber__icontains=search)
+#                 | models.Q(visit_purpose__icontains=search)
+#                 | models.Q(professor__name__icontains=search)
+#             )
+
+#         # 상태 필터 적용
+#         status = request.GET.get('status')
+#         if status:
+#             queryset = queryset.filter(status=status)
+
+#         # 🔥 페이지네이션 적용
+#         page = int(request.GET.get('page', 1))
+#         page_size = 20
+#         start = (page - 1) * page_size
+#         end = start + page_size
+#         queryset = queryset[start:end]
+
+#         # ------ 엑셀 생성 ------
+#         wb = openpyxl.Workbook()
+#         ws = wb.active
+#         ws.title = "Visitors"
+
+#         headers = [
+#             "ID", "이름", "전화번호", "방문 목적",
+#             "상태", "방문 날짜", "경비원 체크 여부", "담당자",
+#             "생년월일", "차량번호", "회사명"
+#         ]
+#         ws.append(headers)
+
+#         for row in queryset:
+#             ws.append([
+#                 row.id,
+#                 row.name,
+#                 row.phonenumber,
+#                 row.visit_purpose,
+#                 row.status,
+#                 row.created_at.strftime("%Y-%m-%d %H:%M"),
+#                 "예" if row.is_checked else "아니오",
+#                 row.professor.name if row.professor else "-",
+#                 row.birthdate.strftime("%Y-%m-%d") if row.birthdate else "",
+#                 row.car_number or "",
+#                 row.company_name or "",
+#             ])
+
+#         # 스타일
+#         for col in ws.columns:
+#             for cell in col:
+#                 cell.alignment = Alignment(horizontal="center", vertical="center")
+#                 cell.font = Font(size=12)
+
+#         # HTTP 응답
+#         response = HttpResponse(content_type='application/vnd.ms-excel')
+#         response['Content-Disposition'] = 'attachment; filename=visitors.xlsx'
+#         wb.save(response)
+#         return response

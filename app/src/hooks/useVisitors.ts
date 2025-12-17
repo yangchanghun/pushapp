@@ -15,34 +15,49 @@ export interface Visitor {
   token: string;
 }
 
-export function useVisitors(search: string, status: string, page: number) {
+export function useVisitors(
+  search: string,
+  status: string,
+  page: number,
+  startDate?: string,
+  endDate?: string
+) {
   const [data, setData] = useState<Visitor[]>([]);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  console.log(data);
+
   useEffect(() => {
     const fetchVisitors = async () => {
       setLoading(true);
-      const params = new URLSearchParams({
-        search,
-        status,
-        page: String(page),
-      });
 
-      const res = await fetch(
-        `https://pushapp.kioedu.co.kr/api/visit/list/?${params}`
-        // `${import.meta.env.VITE_API_URL}/api/visit/list/?${params}`
-      );
+      const params = new URLSearchParams();
 
-      const json = await res.json();
+      params.append("page", String(page));
 
-      setData(json.results);
-      setCount(json.count);
-      setLoading(false);
+      if (search) params.append("search", search);
+      if (status) params.append("status", status);
+      if (startDate) params.append("start_date", startDate);
+      if (endDate) params.append("end_date", endDate);
+
+      try {
+        const res = await fetch(
+          `https://pushapp.kioedu.co.kr/api/visit/list/?${params.toString()}`
+          // `${import.meta.env.VITE_API_URL}/api/visit/list/?${params}`
+        );
+
+        const json = await res.json();
+
+        setData(json.results);
+        setCount(json.count);
+      } catch (err) {
+        console.error("방문자 조회 오류:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchVisitors();
-  }, [search, status, page]);
+  }, [search, status, page, startDate, endDate]);
 
   return { data, count, loading, setData };
 }

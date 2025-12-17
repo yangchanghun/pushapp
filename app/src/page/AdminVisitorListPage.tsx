@@ -62,6 +62,10 @@ export default function AdminVisitorListPage() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [startDate, setStartDate] = useState(
+    searchParams.get("start_date") || ""
+  );
+  const [endDate, setEndDate] = useState(searchParams.get("end_date") || "");
 
   const apiBase = "https://pushapp.kioedu.co.kr";
   const apiHost = apiBase.replace(/^https?:\/\//, "");
@@ -169,24 +173,51 @@ export default function AdminVisitorListPage() {
   const [status, setStatus] = useState(initialStatus);
   const [page, setPage] = useState(initialPage);
 
+  // useEffect(() => {
+  //   const params: Record<string, string> = {};
+
+  //   if (page > 1) params.page = String(page);
+  //   if (search) params.search = search;
+  //   if (status) params.status = status;
+
+  //   setSearchParams(params);
+  // }, [page, search, status, setSearchParams]);
+
   useEffect(() => {
     const params: Record<string, string> = {};
 
     if (page > 1) params.page = String(page);
     if (search) params.search = search;
     if (status) params.status = status;
+    if (startDate) params.start_date = startDate;
+    if (endDate) params.end_date = endDate;
 
     setSearchParams(params);
-  }, [page, search, status, setSearchParams]);
+  }, [page, search, status, startDate, endDate, setSearchParams]);
 
   // 데이터 가져오기
-  const { data, count, loading, setData } = useVisitors(search, status, page);
+  // const { data, count, loading, setData } = useVisitors(search, status, page);
+  const { data, count, loading, setData } = useVisitors(
+    search,
+    status,
+    page,
+    startDate,
+    endDate
+  );
 
-  const excelURL = `${
-    // import.meta.env.VITE_API_URL
-    "https://pushapp.kioedu.co.kr"
-  }/api/visit/excel/?search=${search}&status=${status}&page=${page}`;
+  // const excelURL = `${
+  //   // import.meta.env.VITE_API_URL
+  //   "https://pushapp.kioedu.co.kr"
+  // }/api/visit/excel/?search=${search}&status=${status}&page=${page}`;
 
+  const excelParams = new URLSearchParams();
+
+  if (search) excelParams.append("search", search);
+  if (status) excelParams.append("status", status);
+  if (startDate) excelParams.append("start_date", startDate);
+  if (endDate) excelParams.append("end_date", endDate);
+
+  const excelURL = `https://pushapp.kioedu.co.kr/api/visit/excel/?${excelParams.toString()}`;
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <div className="flex items-center mb-6">
@@ -246,6 +277,38 @@ export default function AdminVisitorListPage() {
           <option value="수락">수락</option>
           <option value="거절">거절</option>
         </select>
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => {
+            setStartDate(e.target.value);
+            setPage(1);
+          }}
+          className="border rounded px-3 py-2"
+        />
+
+        <span>~</span>
+
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => {
+            setEndDate(e.target.value);
+            setPage(1);
+          }}
+          className="border rounded px-3 py-2"
+        />
+
+        <button
+          onClick={() => {
+            setStartDate("");
+            setEndDate("");
+            setPage(1);
+          }}
+          className="px-3 py-2 bg-gray-200 rounded"
+        >
+          날짜 초기화
+        </button>
 
         <a href={excelURL} download>
           <button className="bg-green-500 text-white px-4 py-2 rounded">
