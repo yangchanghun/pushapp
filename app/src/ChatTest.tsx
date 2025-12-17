@@ -36,8 +36,6 @@ export default function ChatRoom() {
     const socket = new WebSocket(`${wsProtocol}://${apiHost}/ws/chat/1/`);
     setWs(socket);
 
-    socket.onopen = () => console.log(`✅ [User ${userId}] 연결됨`);
-    socket.onclose = () => console.log(`❌ [User ${userId}] 연결 종료`);
     socket.onerror = (err) => console.error(`⚠️ [User ${userId}] 에러:`, err);
 
     socket.onmessage = (event) => {

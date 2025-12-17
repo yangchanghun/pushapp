@@ -14,7 +14,6 @@ export default function CheckedChatComponent({
 
   // ✅ 스크롤 가능한 컨테이너 ref
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
-  console.log(messages);
   // ✅ 렌더 직후 항상 맨 아래로 (초기 진입 + 새로고침 포함)
   useLayoutEffect(() => {
     const container = chatContainerRef.current;
