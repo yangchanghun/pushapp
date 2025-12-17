@@ -582,13 +582,13 @@ const AgreeModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white p-8 w-[90vw] max-w-3xl max-h-[90vh] rounded-2xl shadow-xl flex flex-col">
+      <div className="bg-white p-8 w-[90vw] max-w-3xl max-h-[100vh] rounded-2xl shadow-xl flex flex-col">
         <h2 className="text-2xl font-bold mb-4 text-center">
           개인정보 처리 동의
         </h2>
 
         {/* 🔽 내용 영역: 스크롤 가능 */}
-        <div className="text-gray-60 text-lg whitespace-pre-line leading-relaxed overflow-y-auto flex-1 pr-2">
+        <div className="text-gray-60 text-m whitespace-pre-line leading-relaxed overflow-y-auto flex-1 pr-2">
           {`「연구원 방문자 개인정보 수집 및 이용 동의서」
 
 본인은 연구원을 출입함에 있어 아래 내용을 충분히 확인하였으며,
