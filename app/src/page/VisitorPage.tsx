@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import ProfessorModal from "../modal/ProfessorModal";
 import sampleImage from "@/assets/sampleImage.jpg";
@@ -11,6 +11,7 @@ const API_URL = "https://pushapp.kioedu.co.kr";
 // const API_URL = import.meta.env.VITE_API_URL;
 
 export default function VisitorForm() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [confirmModal, setConfirmModal] = useState(false);
   const [initialModal, setInitialModal] = useState(true);
   const [successModal, setSuccessModal] = useState(false);
@@ -22,8 +23,18 @@ export default function VisitorForm() {
       setLocation("");
       setSuccessModal(false);
       setAgreeModal(false);
-      const audio = new Audio(initialVoice);
-      audio.play().catch((err) => console.log("Audio play error:", err));
+
+      // 🔥 오디오 단일 인스턴스 관리
+      if (!audioRef.current) {
+        audioRef.current = new Audio(initialVoice);
+      }
+
+      const audio = audioRef.current;
+      audio.pause(); // ✅ 이전 재생 중지
+      audio.currentTime = 0; // ✅ 처음부터
+      audio.play().catch((err) => {
+        console.log("Audio play error:", err);
+      });
     }
   }, [initialModal]);
   console.log(location);

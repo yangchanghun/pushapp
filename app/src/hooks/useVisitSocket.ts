@@ -31,11 +31,12 @@ export default function useVisitSocket({
 
         if (data.type === "visitor_created") {
           onVisitorCreated?.(data.visitor);
-          playSound(acceptSound); // 음성 바꿔야함
+          playSound(acceptSound);
         }
 
         if (data.type === "visitor_status_updated") {
           onVisitorStatusUpdated?.(data.token, data.status);
+
           if (data.status === "수락") {
             playSound(acceptSound);
           }
@@ -49,5 +50,11 @@ export default function useVisitSocket({
     };
 
     return () => socket.close();
-  }, [userId, apiHost, wsProtocol, onVisitorCreated]);
+  }, [
+    userId,
+    apiHost,
+    wsProtocol,
+    onVisitorCreated,
+    onVisitorStatusUpdated, // ✅ 추가
+  ]);
 }
