@@ -84,7 +84,7 @@ export default function AdminPage() {
         <h1 className="text-white text-3xl font-bold">담당자 관리</h1>
         <button
           onClick={() => {
-            navigate("/admin/visitors/list");
+            navigate("/admin");
           }}
         >
           방문자 관리

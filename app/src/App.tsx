@@ -5,7 +5,7 @@ import SpaceBackground from "./components/SpaceBackground";
 
 import { Routes, Route } from "react-router-dom";
 import AcceptRejectPage from "./AcceptRejectPage";
-import GaurdPage from "./page/GuardPage";
+// import GaurdPage from "./page/GuardPage";
 import VisitorPage from "./page/VisitorPage";
 import LoginPage from "./page/LoginPage";
 import RegisterPage from "./page/RegisterPage";
@@ -23,14 +23,14 @@ function App() {
           {/* <Route path="/" element={<MainPage />} /> */}
 
           {/* <Route path="/:userId" element={<GaurdPage />} /> */}
-          <Route
+          {/* <Route
             path="/:userId"
             element={
               <ProtectedRoute>
                 <GaurdPage />
               </ProtectedRoute>
             }
-          />
+          /> */}
           <Route
             path="/admin/professors/list"
             element={
@@ -39,8 +39,16 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/admin/visitors/list"
+            element={
+              <ProtectedRoute>
+                <AdminVisitorListPage />
+              </ProtectedRoute>
+            }
+          /> */}
+          <Route
+            path="/admin"
             element={
               <ProtectedRoute>
                 <AdminVisitorListPage />
