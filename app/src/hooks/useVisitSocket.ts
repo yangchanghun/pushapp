@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import type { Visitor } from "./useVisitors"; // 경로 맞게 수정
 import acceptSound from "@/assets/voice/accept.mp3";
 import rejectSound from "@/assets/voice/reject.mp3";
+import newVisit from "@/assets/voice/newvisit.mp3";
 import { playSound } from "../utils/PlaySound";
 interface Props {
   userId?: string;
@@ -31,7 +32,7 @@ export default function useVisitSocket({
 
         if (data.type === "visitor_created") {
           onVisitorCreated?.(data.visitor);
-          playSound(acceptSound);
+          playSound(newVisit);
         }
 
         if (data.type === "visitor_status_updated") {
