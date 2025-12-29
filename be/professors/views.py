@@ -6,8 +6,7 @@ from .models import Professors
 from .serializers import ProfessorsSerializer
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser,AllowAny
 from rest_framework.authentication import TokenAuthentication
 @method_decorator(csrf_exempt, name='dispatch')
 class ProfessorCreateView(APIView):
@@ -74,3 +73,24 @@ def import_professors_from_excel(file):
                 # 🔥 핵심: ImageField에 경로 문자열 복사
                 professor.location_gif.name = loc_img.image.name
                 professor.save()
+
+
+
+class ProfessorExcelUploadView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        file = request.FILES.get("file")
+
+        if not file:
+            return Response(
+                {"detail": "엑셀 파일이 필요합니다."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        import_professors_from_excel(file)
+
+        return Response(
+            {"detail": "엑셀 업로드 완료"},
+            status=status.HTTP_201_CREATED
+        )

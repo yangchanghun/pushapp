@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ProfessorListView, ProfessorCreateView,ProfessorDetailView,ProfessorUpdateView,ProfessorDeleteView
+from .views import ProfessorListView, ProfessorCreateView,ProfessorExcelUploadView,ProfessorDetailView,ProfessorUpdateView,ProfessorDeleteView
 
 urlpatterns = [
     path('create/', ProfessorCreateView.as_view(), name='professor-create'),
@@ -7,4 +7,5 @@ urlpatterns = [
     path('<int:id>/', ProfessorDetailView.as_view()),
     path('<int:id>/update/', ProfessorUpdateView.as_view()),
     path('<int:id>/delete/', ProfessorDeleteView.as_view()),
+    path("upload/excel/", ProfessorExcelUploadView.as_view()),
 ]
