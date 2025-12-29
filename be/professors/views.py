@@ -49,3 +49,28 @@ class ProfessorDeleteView(generics.DestroyAPIView):
     queryset = Professors.objects.all()
     serializer_class = ProfessorsSerializer
     lookup_field = "id"
+
+
+import pandas as pd
+from .models import Professors, LocationImage
+
+def import_professors_from_excel(file):
+    df = pd.read_excel(file)
+
+    for _, row in df.iterrows():
+        professor = Professors.objects.create(
+            name=row.get("name", ""),
+            phonenumber=row.get("phonenumber", ""),
+            location=row.get("location", ""),
+            department=row.get("department", "")
+        )
+
+        if pd.notna(row.get("location_img")):
+            loc_img = LocationImage.objects.filter(
+                code=row["location_img"]
+            ).first()
+
+            if loc_img:
+                # 🔥 핵심: ImageField에 경로 문자열 복사
+                professor.location_gif.name = loc_img.image.name
+                professor.save()

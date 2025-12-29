@@ -10,7 +10,11 @@ class Professors(models.Model):
         return self.name
     
 
-
+class LocationImage(models.Model):
+    code = models.CharField(max_length=50, unique=True)  # r1-1
+    image = models.ImageField(upload_to="location_images/")
+    def __str__(self):
+        return self.code
 # class Location_Images(models.Model):
 #     name = models.CharField(max_length=100)
 #     image = models.ImageField(upload_to='professors/location_images/')

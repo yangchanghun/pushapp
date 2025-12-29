@@ -15,6 +15,7 @@ export default function EditProfessorModal({ id, onClose, onSuccess }: Props) {
     name: "",
     phonenumber: "",
     location: "",
+    department: "",
   });
   const [file, setFile] = useState<File | null>(null);
 
@@ -28,6 +29,7 @@ export default function EditProfessorModal({ id, onClose, onSuccess }: Props) {
           name: res.data.name,
           phonenumber: res.data.phonenumber,
           location: res.data.location,
+          department: res.data.department || "",
         });
       });
   }, [id]);
@@ -94,7 +96,16 @@ export default function EditProfessorModal({ id, onClose, onSuccess }: Props) {
             className="border rounded p-2"
             placeholder="위치"
           />
-
+          <input
+            type="text"
+            name="department"
+            value={form.department}
+            onChange={(e) =>
+              setForm({ ...form, [e.target.name]: e.target.value })
+            }
+            className="border rounded p-2"
+            placeholder="부서"
+          />
           <input
             type="file"
             accept="image/*"
