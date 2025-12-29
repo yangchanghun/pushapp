@@ -105,3 +105,11 @@ class ProfessorExcelUploadView(APIView):
             {"detail": "엑셀 업로드 완료"},
             status=status.HTTP_201_CREATED
         )
+    
+class LocationImageListView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        qs = LocationImage.objects.all().order_by("code")
+        serializer = LocationImageSerializer(qs, many=True)
+        return Response(serializer.data)
