@@ -3,7 +3,7 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Professors
-from .serializers import ProfessorsSerializer
+from .serializers import ProfessorsSerializer,LocationImageSerializer
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import IsAdminUser,AllowAny
@@ -49,6 +49,17 @@ class ProfessorDeleteView(generics.DestroyAPIView):
     serializer_class = ProfessorsSerializer
     lookup_field = "id"
 
+class LocationImageCreateView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = LocationImageSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 import pandas as pd
 from .models import Professors, LocationImage
