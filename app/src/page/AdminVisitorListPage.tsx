@@ -71,43 +71,7 @@ export default function AdminVisitorListPage() {
   const apiHost = apiBase.replace(/^https?:\/\//, "");
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
   const userId = "1";
-  // useVisitSocket({
-  //   userId,
-  //   apiHost,
-  //   wsProtocol,
-  // });
 
-  // useVisitSocket({
-  //   userId,
-  //   apiHost,
-  //   wsProtocol,
-  //   onVisitorCreated: (visitor) => {
-  //     // 🔍 현재 필터 조건 체크
-  //     if (status && visitor.status !== status) return;
-
-  //     if (
-  //       search &&
-  //       !(
-  //         visitor.name.includes(search) ||
-  //         visitor.phonenumber.includes(search) ||
-  //         visitor.visit_purpose.includes(search)
-  //       )
-  //     ) {
-  //       return;
-  //     }
-
-  //     // ✅ 중복 방지 + 실시간 prepend
-  //     setData((prev) => {
-  //       if (prev.some((v) => v.id === visitor.id)) return prev;
-  //       return [visitor, ...prev];
-  //     });
-  //   },
-  //   onVisitorStatusUpdated: (token, newStatus) => {
-  //     setData((prev) =>
-  //       prev.map((v) => (v.token === token ? { ...v, status: newStatus } : v))
-  //     );
-  //   },
-  // });
   useVisitSocket({
     userId,
     apiHost,

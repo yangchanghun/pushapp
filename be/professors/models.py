@@ -15,6 +15,7 @@ class LocationImage(models.Model):
     image = models.ImageField(upload_to="location_images/")
     def __str__(self):
         return self.code
+    
 # class Location_Images(models.Model):
 #     name = models.CharField(max_length=100)
 #     image = models.ImageField(upload_to='professors/location_images/')
