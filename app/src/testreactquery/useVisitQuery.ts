@@ -1,37 +1,36 @@
-//
-
 // new QueryClient();는 최초 앱실행 시 한 번만 호출되며 전역에 저장소를 생성한다.
 // 그리고 useQueryClient()는 최초에 생성한 저장소를 가져와 관리한다.
 
 // useQuery를 사용하여 데이터를 호출하여 페칭및 서버상태를 관리할 수 있꼬
 // useMutation을 사용하여 데이터를 변경하는 작업을 수행한다.
 
-// import { useQuery, useMutation } from "@tanstack/react-query";
-// import { fetchVisitors } from "./fetchVisitors";
+import { useQuery } from "@tanstack/react-query";
+import { fetchVisitors } from "./fetchVisitors";
 
-// export function useVisitorsQuery(
-//   search: string,
-//   status: string,
-//   page: number,
-//   startDate?: string,
-//   endDate?: string
-// ) {
-//   const params = new URLSearchParams();
+export function useVisitorsQuery(
+  search: string,
+  status: string,
+  page: number,
+  startDate?: string,
+  endDate?: string
+) {
+  const params = new URLSearchParams();
 
-//   params.append("page", String(page));
-//   if (search) params.append("search", search);
-//   if (status) params.append("status", status);
-//   if (startDate) params.append("start_date", startDate);
-//   if (endDate) params.append("end_date", endDate);
-//   console.log(params);
-//   return useQuery({
-//     queryKey: ["visitors", page, search, status, startDate, endDate], // 쿼리를 식별하는 고유 키
-//     queryFn: () => fetchVisitors(params), // 데이터를 가져오는 함수
-//     placeholderData: (previousData) => previousData, //
-//     staleTime: 1000 * 10, // 10초 캐시
-//     gcTime: 1000 * 10,
-//   });
-// }
+  params.append("page", String(page));
+  if (search) params.append("search", search);
+  if (status) params.append("status", status);
+  if (startDate) params.append("start_date", startDate);
+  if (endDate) params.append("end_date", endDate);
+  console.log(params);
+  return useQuery({
+    queryKey: ["visitors", page, search, status, startDate, endDate], // 쿼리를 식별하는 고유 키
+    queryFn: () => fetchVisitors(params), // 데이터를 가져오는 함수
+    placeholderData: (previousData) => previousData, //
+    staleTime: 1000 * 10, //  fresh한상태를 유지하는 시간으로 refetch를 하지 않는다. 기본값은 0으로 항상 stale상태로 페이지변경 후 다시 돌아오면 다시 refetch한다
+    // 그니까 refetch하기 싫으면 저거 거셈.
+    gcTime: 1000 * 10, // 쿼리를 사용하는 컴포넌트가 하나도 없어진 시점부터 10초 후 캐시된 데이터를 메모리세어 제거한다.
+  });
+}
 
 // 주요 반환값
 

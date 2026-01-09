@@ -14,7 +14,8 @@ import ProtectedRoute from "./router/ProtectedRoute"; // 🔥 추가
 import AdminPage from "./page/AdminPage";
 import AdminVisitorListPage from "./page/AdminVisitorListPage";
 import { LocationImgListPage } from "./page/LocationImgListPage";
-// import TestVisitListView from "./testreactquery/TestVisitListView";
+import TestVisitListView from "./testreactquery/TestVisitListView";
+import TestAcceptRejectPage from "./testreactquery/socket+tanstack/TestAcceptRejectPage";
 function App() {
   return (
     <>
@@ -62,10 +63,14 @@ function App() {
           <Route path="/" element={<VisitorPage />} />
           <Route path="/admin/login" element={<LoginPage />} />
           <Route path="/admin/register" element={<RegisterPage />} />
-          {/* <Route path="/test/visitlistview" element={<TestVisitListView />} /> */}
+          <Route path="/test/visitlistview" element={<TestVisitListView />} />
           <Route
             path="/admin/location/list"
             element={<LocationImgListPage />}
+          />
+          <Route
+            path="/test/acceptreject/:token"
+            element={<TestAcceptRejectPage />}
           />
         </Routes>
       </div>

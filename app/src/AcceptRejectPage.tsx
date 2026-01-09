@@ -46,6 +46,7 @@ export default function AcceptRejectPage() {
     setLoading(true);
     try {
       const res = await fetch(`${API_URL}/api/visit/${action}/${token}/`);
+      console.log(res);
       const text = await res.text();
       setMessage(text);
       setValid(false);
@@ -94,6 +95,7 @@ export default function AcceptRejectPage() {
             <div
               style={{ display: "flex", gap: "1rem", justifyContent: "center" }}
             >
+              {/* daskjhdashadfjdwfdjwhsda"dfdfc= */}
               <button
                 onClick={() => handleAction("accept")}
                 style={{
