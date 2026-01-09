@@ -48,6 +48,7 @@ export default function AcceptRejectPage() {
       const res = await fetch(`${API_URL}/api/visit/${action}/${token}/`);
       console.log(res);
       const text = await res.text();
+      console.log(text);
       setMessage(text);
       setValid(false);
     } catch {
