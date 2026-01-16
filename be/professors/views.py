@@ -72,7 +72,8 @@ def import_professors_from_excel(file):
             name=row.get("name", ""),
             phonenumber=row.get("phonenumber", ""),
             location=row.get("location", ""),
-            department=row.get("department", "")
+            department=row.get("department", ""),
+            class_level=row.get("class","")
         )
 
         if pd.notna(row.get("location_img")):

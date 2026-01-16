@@ -5,15 +5,18 @@ import { useVisitMutation } from "./useVisitMutation";
 export default function TestAcceptRejectPage() {
   const { token } = useParams<{ token: string }>();
 
-  const { data, isError } = useVisitCheck(token);
+  const { data, isLoading, isFetching } = useVisitCheck(token);
 
+  console.log("loading:", isLoading);
+  console.log("fetching:", isFetching);
+  console.log("data:", data);
   const visitAction = useVisitMutation();
   // 최초 로딩만 처리
   // if (isLoading && !data) {
   //   return <div className="p-8 text-center">최초 로딩중...</div>;
   // }
 
-  if (isError || !data?.valid) {
+  if (isLoading || !data?.valid) {
     return (
       <h2 style={{ color: "#ef4444" }}>
         {data?.message ?? "잘못된 요청입니다."}

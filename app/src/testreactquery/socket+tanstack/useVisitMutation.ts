@@ -27,7 +27,6 @@ export function useVisitMutation() {
   return useMutation({
     mutationFn: ({ action, token }: { action: string; token: string }) =>
       fetchVisitAction(action, token),
-
     onSuccess: (_data, variables) => {
       const { action, token } = variables;
 
